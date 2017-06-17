@@ -1,4 +1,4 @@
-specs-support
+specs-java-tools
 =============
 
-Support repository for SPeCS projects (e.g., binary artifacts, configurations...)
+Java tools created by SPeCS research group
