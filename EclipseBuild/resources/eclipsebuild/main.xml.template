@@ -1,0 +1,23 @@
+<?xml version="1.0" standalone="no"?>
+<project default="junit" name="Build file for Eclipse projects" <USE_IVY>>                              
+
+	<IVY_SETTINGS>
+	
+	<CLEAN>
+	
+
+	<target name="compile" depends="clean<ALL_COMPILE_TARGETS>" >
+	</target>
+	
+	<COMPILE_TARGETS>
+	
+	
+	<target name="junit" depends="compile<ALL_JUNIT_TARGETS>">
+	  <fail message="Test failure detected, check test results." if="test.failed" />
+	</target>
+	
+	<JUNIT_TARGETS>
+
+	<BENCH_TARGETS>
+			
+</project>
