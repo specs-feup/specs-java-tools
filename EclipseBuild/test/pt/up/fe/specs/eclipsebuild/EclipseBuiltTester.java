@@ -34,7 +34,11 @@ public class EclipseBuiltTester {
 
     @Test
     public void buildSpecsUtils() {
-        testBuilder("https://github.com/specs-feup/specs-java-libs.git", "--project", "jOptions", "--build", "--clean");
+        // testBuilder("https://github.com/specs-feup/specs-java-libs.git", "--project", "jOptions", "--build",
+        // "--clean");
+
+        testBuilder("https://github.com/specs-feup/specs-java-libs.git",
+                "https://github.com/specs-feup/specs-java-tools.git", "--project", "EclipseBuild", "--build");
 
         // Option to fork javac
         // ProcessBuilder processBuilder = SpecsSystem.buildJavaProcess(EclipseBuildLauncher.class,
