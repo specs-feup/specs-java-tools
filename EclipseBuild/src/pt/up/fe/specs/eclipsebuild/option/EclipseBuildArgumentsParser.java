@@ -116,8 +116,10 @@ public class EclipseBuildArgumentsParser {
 
         String configFilename = arguments.popSingle();
 
+        // Get file
+        File configFile = getConfigFile(configFilename);
         // Read file
-        File configFile = SpecsIo.existingFile(configFilename);
+        // File configFile = SpecsIo.existingFile(configFilename);
 
         String argsLine = "";
         try (LineStream lines = LineStream.newInstance(configFile)) {
@@ -128,6 +130,18 @@ public class EclipseBuildArgumentsParser {
 
         // Add config arguments to current arguments
         arguments.add(configArguments);
+    }
+
+    private static File getConfigFile(String configFilename) {
+        // Check if path represents a remote file
+        String configFilenameLowerCase = configFilename.toLowerCase();
+        if (configFilenameLowerCase.startsWith("http://") || configFilenameLowerCase.startsWith("https://")) {
+            // Download file to repositories folder
+            return SpecsIo.download(configFilename, EclipseRepo.getRepositoriesFolder());
+        }
+
+        // Interpret path as a local folder
+        return SpecsIo.existingFile(configFilename);
     }
 
     public EclipseBuildArgumentsParser() {
