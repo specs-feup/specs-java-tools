@@ -14,22 +14,12 @@
 package pt.up.fe.specs.eclipsebuild.option;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.PullCommand;
-import org.eclipse.jgit.api.errors.GitAPIException;
-
-import com.google.common.base.Preconditions;
-
-import pt.up.fe.specs.util.SpecsIo;
-import pt.up.fe.specs.util.SpecsLogs;
+import pt.up.fe.specs.git.SpecsGit;
 
 public class EclipseRepo {
 
-    private static final String ECLIPSE_REPOS_FOLDER = "eclipse_build_repos";
+    // private static final String ECLIPSE_REPOS_FOLDER = "eclipse_build_repos";
 
     private static final String DEFAULT_IGNORE_PROJECTS_FILE = "projects.buildignore";
     private static final String DEFAULT_IVY_SETTINGS_FILE = "ivysettings.xml";
@@ -96,7 +86,8 @@ public class EclipseRepo {
         // Check if path represents a remote repository
         String pathLowerCase = repositoryPath.toLowerCase();
         if (pathLowerCase.startsWith("http://") || pathLowerCase.startsWith("https://")) {
-            processedRepositoryFolder = parseRepositoryUrl(repositoryPath);
+            // processedRepositoryFolder = parseRepositoryUrl(repositoryPath);
+            processedRepositoryFolder = SpecsGit.parseRepositoryUrl(repositoryPath);
 
         }
         // Interpret path as a local folder
@@ -107,69 +98,70 @@ public class EclipseRepo {
         return processedRepositoryFolder;
     }
 
-    private static File parseRepositoryUrl(String repositoryPath) {
-        String repoName = getRepoName(repositoryPath);
-
-        // Get repo folder
-        File eclipseBuildFolder = getRepositoriesFolder();
-        File repoFolder = new File(eclipseBuildFolder, repoName);
-
-        // If folder does not exist, or if it exists and is empty, clone repository
-        if (!repoFolder.exists() || SpecsIo.isEmptyFolder(repoFolder)) {
-            try {
-                SpecsLogs.msgInfo("Cloning repo '" + repositoryPath + "' to folder '" + repoFolder + "'");
-                Git.cloneRepository()
-                        .setURI(repositoryPath)
-                        .setDirectory(repoFolder)
-                        .call();
-
-                return repoFolder;
-            } catch (GitAPIException e) {
-                throw new RuntimeException("Could not clone repository '" + repositoryPath + "'", e);
-            }
-        }
-
-        // Repository already exists, pull
-
-        try {
-            SpecsLogs.msgInfo("Pulling repo '" + repositoryPath + "' in folder '" + repoFolder + "'");
-            Git gitRepo = Git.open(repoFolder);
-            PullCommand pullCmd = gitRepo.pull();
-            pullCmd.call();
-        } catch (GitAPIException | IOException e) {
-            throw new RuntimeException("Could not pull repository '" + repositoryPath + "'", e);
-        }
-
-        return repoFolder;
-    }
+    // private static File parseRepositoryUrl(String repositoryPath) {
+    // String repoName = getRepoName(repositoryPath);
+    //
+    // // Get repo folder
+    // File eclipseBuildFolder = getRepositoriesFolder();
+    // File repoFolder = new File(eclipseBuildFolder, repoName);
+    //
+    // // If folder does not exist, or if it exists and is empty, clone repository
+    // if (!repoFolder.exists() || SpecsIo.isEmptyFolder(repoFolder)) {
+    // try {
+    // SpecsLogs.msgInfo("Cloning repo '" + repositoryPath + "' to folder '" + repoFolder + "'");
+    // Git.cloneRepository()
+    // .setURI(repositoryPath)
+    // .setDirectory(repoFolder)
+    // .call();
+    //
+    // return repoFolder;
+    // } catch (GitAPIException e) {
+    // throw new RuntimeException("Could not clone repository '" + repositoryPath + "'", e);
+    // }
+    // }
+    //
+    // // Repository already exists, pull
+    //
+    // try {
+    // SpecsLogs.msgInfo("Pulling repo '" + repositoryPath + "' in folder '" + repoFolder + "'");
+    // Git gitRepo = Git.open(repoFolder);
+    // PullCommand pullCmd = gitRepo.pull();
+    // pullCmd.call();
+    // } catch (GitAPIException | IOException e) {
+    // throw new RuntimeException("Could not pull repository '" + repositoryPath + "'", e);
+    // }
+    //
+    // return repoFolder;
+    // }
 
     public static File getRepositoriesFolder() {
-        return new File(SpecsIo.getTempFolder(), ECLIPSE_REPOS_FOLDER);
+        return SpecsGit.getRepositoriesFolder();
+        // return new File(SpecsIo.getTempFolder(), ECLIPSE_REPOS_FOLDER);
     }
 
-    private static String getRepoName(String repositoryPath) {
-        try {
-            String repoPath = new URI(repositoryPath).getPath();
-
-            Preconditions.checkArgument(!repoPath.endsWith("/"),
-                    "Did not expect path to end with '/', take care of this case");
-
-            if (repoPath.toLowerCase().endsWith(".git")) {
-                repoPath = repoPath.substring(0, repoPath.length() - ".git".length());
-            }
-
-            int slashIndex = repoPath.lastIndexOf('/');
-            if (slashIndex != -1) {
-                repoPath = repoPath.substring(slashIndex + 1);
-            }
-
-            return repoPath;
-
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
+    // private static String getRepoName(String repositoryPath) {
+    // try {
+    // String repoPath = new URI(repositoryPath).getPath();
+    //
+    // Preconditions.checkArgument(!repoPath.endsWith("/"),
+    // "Did not expect path to end with '/', take care of this case");
+    //
+    // if (repoPath.toLowerCase().endsWith(".git")) {
+    // repoPath = repoPath.substring(0, repoPath.length() - ".git".length());
+    // }
+    //
+    // int slashIndex = repoPath.lastIndexOf('/');
+    // if (slashIndex != -1) {
+    // repoPath = repoPath.substring(slashIndex + 1);
+    // }
+    //
+    // return repoPath;
+    //
+    // } catch (URISyntaxException e) {
+    // throw new RuntimeException(e);
+    // }
+    //
+    // }
 
     private File getDefaultFile(File currentFile, String defaultFilename) {
         // Check if current file is set
