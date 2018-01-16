@@ -113,4 +113,10 @@ public class EclipseBuiltTester {
                 "--main",
                 "larai.LaraI"));
     }
+
+    @Test
+    public void testHelp() {
+        // Project with main
+        EclipseBuildLauncher.execute(Arrays.asList("--help"));
+    }
 }

@@ -179,7 +179,7 @@ public class EclipseBuildArgumentsParser {
 
     public static void printHelpMessage() {
         StringBuilder message = new StringBuilder();
-        message.append("Eclipse MultiBuild - Generates and runs ANT scripts for Eclipse Java projects\n\n");
+        message.append("EclipseBuild - Generates and runs ANT scripts for Eclipse Java projects\n\n");
         message.append("Usage: <folder> [-i <ivySetting>] [-u <userLibraries>] <folder> [-i...\n\n");
         message.append(
                 "Default files that will be searched for in the root of the repository folders if no flag is specified:\n");
@@ -187,6 +187,25 @@ public class EclipseBuildArgumentsParser {
         message.append(" ").append(getDefaultIvySettingsFile()).append(" - Ivy settings file\n");
         message.append(" ").append(getDefaultIgnoreProjectsFile())
                 .append(" - Text file with list of projects to ignore (one project name per line)\n");
+
+        message.append("\nAdditional options:\n");
+        message.append(" --help: shows this help message\n");
+        message.append(" --build: builds the project\n");
+        message.append(" --clean: cleans the temporary folder\n");
+        message.append(" --list: shows the dependencies of the specified project\n");
+        message.append(" --project: the name of the Eclipse project to compile\n");
+        message.append(" --main: the class of the project with the main function\n");
+        message.append(
+                " --config <config>: specify a configuration file (local or remote). A configuration file is a plain text file with EclipseBuild commands\n");
+        message.append(
+                " --jvm-javac: executes 'javac' in the current JVM. If flag is not active, each 'javac' execution is forked. This can make builds slower, but it is usually necessary when EclipseBuild is used to execute the build (instead of just generating the ANT file)\n");
+
+        /*
+        
+        ARGUMENTS_PARSER.put("--main", EclipseBuildArgumentsParser.addString(EclipseBuildKeys.MAIN_CLASS));
+        ARGUMENTS_PARSER.put("--config", EclipseBuildArgumentsParser::parseConfig);
+        }
+         */
 
         EclipseBuildLog.info(message.toString());
     }
