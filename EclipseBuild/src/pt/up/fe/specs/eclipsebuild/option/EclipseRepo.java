@@ -16,6 +16,7 @@ package pt.up.fe.specs.eclipsebuild.option;
 import java.io.File;
 
 import pt.up.fe.specs.git.SpecsGit;
+import pt.up.fe.specs.util.SpecsLogs;
 
 public class EclipseRepo {
 
@@ -172,7 +173,7 @@ public class EclipseRepo {
         // Current file is null, check if default file exists
         File defaultFile = new File(getRepositoryFolder(), defaultFilename);
         if (defaultFile.isFile()) {
-            // SpecsLogs.msgInfo("Using default file " + defaultFile.getAbsolutePath());
+            SpecsLogs.msgInfo("Using default file " + defaultFile.getAbsolutePath());
             return defaultFile;
         }
         return null;

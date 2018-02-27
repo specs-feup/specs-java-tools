@@ -92,6 +92,7 @@ public class EclipseProject {
 
             UserLibraries repoUserLibraries = UserLibraries.newInstance(eclipseProjects, option.getUserLibraries());
             userLibraries.put(option.getRepositoryFolder(), repoUserLibraries);
+
         }
 
         // Classpath data that represents all repositories
