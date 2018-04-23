@@ -204,7 +204,9 @@ public class EclipseBuildLauncher {
 
         SpecsLogs.msgInfo("Dependencies for project '" + projectName + "':");
         project.getClasspath().getDependentProjects().stream()
-                .forEach(name -> SpecsLogs.msgInfo(" - " + name));
+                .forEach(name -> SpecsLogs
+                        .msgInfo(" - " + name + " (" + eclipseProjects.get(name).getProjectRepo().getName() + ")"));
+
         return;
     }
 
