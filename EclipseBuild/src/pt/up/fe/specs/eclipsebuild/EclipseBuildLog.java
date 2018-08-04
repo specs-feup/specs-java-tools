@@ -13,23 +13,26 @@
 
 package pt.up.fe.specs.eclipsebuild;
 
-import pt.up.fe.specs.util.lazy.Lazy;
-import pt.up.fe.specs.util.logging.SpecsLogger;
+import pt.up.fe.specs.util.logging.StringLogger;
 
-public class EclipseBuildLog extends SpecsLogger {
+// public class EclipseBuildLog extends SpecsLogger {
+public class EclipseBuildLog {
 
-    private static final String LOGGER_NAME = buildLoggerName(EclipseBuildLog.class);
-    private static final Lazy<EclipseBuildLog> LOGGER = buildLazy(EclipseBuildLog::new);
+    // private static final String LOGGER_NAME = buildLoggerName(EclipseBuildLog.class);
+    // private static final Lazy<EclipseBuildLog> LOGGER = buildLazy(EclipseBuildLog::new);
+    private static final StringLogger LOGGER = new StringLogger(EclipseBuildLog.class.getName());
 
-    public static EclipseBuildLog logger() {
-        return LOGGER.get();
+    // public static EclipseBuildLog logger() {
+    public static StringLogger logger() {
+        // return LOGGER.get();
+        return LOGGER;
     }
 
-    private EclipseBuildLog() {
-        super(LOGGER_NAME);
-    }
+    // private EclipseBuildLog() {
+    // super(LOGGER_NAME);
+    // }
 
     public static void info(String message) {
-        logger().msgInfo(message);
+        logger().info(message);
     }
 }
