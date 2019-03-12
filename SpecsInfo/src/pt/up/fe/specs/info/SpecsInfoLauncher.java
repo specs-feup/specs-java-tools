@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import org.suikasoft.jOptions.Datakey.DataKey;
 import org.suikasoft.jOptions.Datakey.KeyFactory;
 
+import pt.up.fe.specs.ant.tasks.Sftp;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -28,6 +29,12 @@ import pt.up.fe.specs.util.properties.SpecsProperties;
 public class SpecsInfoLauncher {
 
     public static final DataKey<String> SPREADSHEET_ID = KeyFactory.string("spreadsheetId");
+    public static final DataKey<String> LOGIN = KeyFactory.string("login");
+    public static final DataKey<String> PASS = KeyFactory.string("pass");
+    public static final DataKey<String> HOST = KeyFactory.string("host");
+    public static final DataKey<String> PORT = KeyFactory.string("port");
+
+    private final static String DESTINATION_FOLDER = "/var/www/html/resources";
 
     public static void main(String[] args) {
         SpecsSystem.programStandardInit();
@@ -49,13 +56,26 @@ public class SpecsInfoLauncher {
         String mergedBib = BibtexCollector.fromDblpUsers(dblpUsers);
 
         // Make sure output file exists, clear it
-        File outputFile = new File("merge.bib");
+        File outputFile = new File("specs.bib");
 
         SpecsLogs.info("Writing Bibtex file '" + outputFile.getAbsolutePath() + "'");
         SpecsIo.write(outputFile, mergedBib);
 
+        // Upload Bibtex file
+        new Sftp().set(Sftp.LOGIN, properties.get(LOGIN))
+                .set(Sftp.PASS, properties.get(PASS))
+                .set(Sftp.HOST, properties.get(HOST))
+                .set(Sftp.PORT, properties.get(PORT))
+                .set(Sftp.DESTINATION_FOLDER, DESTINATION_FOLDER)
+                .set(Sftp.FILE_TO_TRANSFER, outputFile)
+                .run();
+        //
+
         // int exitCode = success ? 0 : 1;
         // System.exit(exitCode);
+
+        // Clean
+        SpecsIo.delete(outputFile);
     }
 
 }
