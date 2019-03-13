@@ -22,6 +22,11 @@ public class SpecsDblp {
         return "https://dblp.uni-trier.de/pers/tb2/" + lowerCaseFirstChar + "/" + user + ".bib";
     }
 
+    public static String getDblpXmlUrl(String user) {
+        char lowerCaseFirstChar = Character.toLowerCase(user.charAt(0));
+        return "https://dblp.uni-trier.de/pers/xx/" + lowerCaseFirstChar + "/" + user + ".xml";
+    }
+
     public static String getDblpUserFromUrl(String dblpUrl) {
         int lastIndexOfSlash = dblpUrl.lastIndexOf('/');
 

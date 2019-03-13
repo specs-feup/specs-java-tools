@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.List;
 
 import org.jbibtex.BibTeXDatabase;
@@ -31,7 +32,7 @@ import org.jbibtex.BibTeXParser;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 
-public class BibtexCollector {
+public class BibtexCollector implements Collector {
 
     public static String fromDblpUsers(List<String> dblpUsers) {
 
@@ -99,6 +100,24 @@ public class BibtexCollector {
         }
 
         // return success;
+    }
+
+    @Override
+    public List<File> collectFromDblp(List<String> dblpUsers) {
+        String mergedBib = BibtexCollector.fromDblpUsers(dblpUsers);
+
+        // Make sure output file exists, clear it
+        File outputFile = new File("specs.bib");
+
+        SpecsLogs.info("Writing Bibtex file '" + outputFile.getAbsolutePath() + "'");
+        SpecsIo.write(outputFile, mergedBib);
+
+        return Arrays.asList(outputFile);
+    }
+
+    @Override
+    public String getFormat() {
+        return "bib";
     }
 
 }
