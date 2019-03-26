@@ -28,7 +28,7 @@
 	<dependencies>
 	
 		<!-- Bibtex -->
-		<dependency org="org.jbibtex" name="jbibtex" rev="1.0.17"/>
+		<dependency org="org.jbibtex" name="jbibtex" rev="1.0.17"/> 
 		
 		<!-- Google API -->
 		<dependency org="com.google.api-client" name="google-api-client" rev="1.28.0"/>
