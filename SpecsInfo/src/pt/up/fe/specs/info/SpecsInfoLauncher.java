@@ -14,6 +14,7 @@
 package pt.up.fe.specs.info;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,11 +30,14 @@ import pt.up.fe.specs.util.properties.SpecsProperties;
 public class SpecsInfoLauncher {
 
     public static final DataKey<String> SPREADSHEET_ID = KeyFactory.string("spreadsheetId");
+    public static final DataKey<String> CREDENTIALS = KeyFactory.string("credentials");
+    public static final DataKey<String> CLEAN = KeyFactory.string("clean");
+
+    public static final DataKey<String> UPLOAD_TO_SERVER = KeyFactory.string("uploadToServer");
     public static final DataKey<String> LOGIN = KeyFactory.string("login");
     public static final DataKey<String> PASS = KeyFactory.string("pass");
     public static final DataKey<String> HOST = KeyFactory.string("host");
     public static final DataKey<String> PORT = KeyFactory.string("port");
-    public static final DataKey<String> CREDENTIALS = KeyFactory.string("credentials");
 
     private final static String DESTINATION_FOLDER = "/var/www/html/test/db";
 
@@ -46,9 +50,9 @@ public class SpecsInfoLauncher {
         SpecsProperties properties = SpecsProperties.newInstance(propertiesFile);
 
         String spreadsheetId = properties.get(SPREADSHEET_ID);
+        File credentials = properties.getExistingFile(CREDENTIALS).orElseThrow();
 
-        List<String> dblpLinks = GoogleSheets.getMembersDblp(spreadsheetId,
-                properties.getExistingFile(CREDENTIALS).orElseThrow());
+        List<String> dblpLinks = GoogleSheets.getMembersDblp(spreadsheetId, credentials);
 
         SpecsLogs.info("Found " + dblpLinks.size() + " DBLP links");
 
@@ -57,58 +61,36 @@ public class SpecsInfoLauncher {
                 .filter(user -> user != null)
                 .collect(Collectors.toList());
 
-        for (File outputFile : collector.collectFromDblp(dblpUsers)) {
+        List<File> filesForUpload = new ArrayList<>();
 
-            // Upload file
-            new Sftp().set(Sftp.LOGIN, properties.get(LOGIN))
-                    .set(Sftp.PASS, properties.get(PASS))
-                    .set(Sftp.HOST, properties.get(HOST))
-                    .set(Sftp.PORT, properties.get(PORT))
-                    .set(Sftp.DESTINATION_FOLDER, DESTINATION_FOLDER)
-                    .set(Sftp.FILE_TO_TRANSFER, outputFile)
-                    .run();
-            //
+        // Information about publications
+        filesForUpload.addAll(collector.collectFromDblp(dblpUsers));
 
-            // int exitCode = success ? 0 : 1;
-            // System.exit(exitCode);
+        // Information about members
+        filesForUpload.addAll(new GroupMembers(spreadsheetId, credentials).collectInformation());
 
-            // Clean
-            SpecsIo.delete(outputFile);
+        // Upload files
+        if (properties.getBoolean(UPLOAD_TO_SERVER)) {
+            for (File outputFile : filesForUpload) {
+
+                // Upload file
+                new Sftp().set(Sftp.LOGIN, properties.get(LOGIN))
+                        .set(Sftp.PASS, properties.get(PASS))
+                        .set(Sftp.HOST, properties.get(HOST))
+                        .set(Sftp.PORT, properties.get(PORT))
+                        .set(Sftp.DESTINATION_FOLDER, DESTINATION_FOLDER)
+                        .set(Sftp.FILE_TO_TRANSFER, outputFile)
+                        .run();
+            }
+        }
+
+        // Clean
+        if (properties.getBoolean(CLEAN)) {
+            for (File outputFile : filesForUpload) {
+                SpecsIo.delete(outputFile);
+            }
         }
 
     }
 
-    /*
-    public static void getXmlDb(SpecsProperties properties, List<String> dblpUsers) {
-    
-    }
-    
-    public static void getBibtexDb(SpecsProperties properties, List<String> dblpUsers) {
-    
-        // List<String> dblpUsers = Arrays.asList("Bispo:Jo=atilde=o", "Paulino:Nuno_Miguel_Cardanha");
-        String mergedBib = BibtexCollector.fromDblpUsers(dblpUsers);
-    
-        // Make sure output file exists, clear it
-        File outputFile = new File("specs.bib");
-    
-        SpecsLogs.info("Writing Bibtex file '" + outputFile.getAbsolutePath() + "'");
-        SpecsIo.write(outputFile, mergedBib);
-    
-        // Upload Bibtex file
-        new Sftp().set(Sftp.LOGIN, properties.get(LOGIN))
-                .set(Sftp.PASS, properties.get(PASS))
-                .set(Sftp.HOST, properties.get(HOST))
-                .set(Sftp.PORT, properties.get(PORT))
-                .set(Sftp.DESTINATION_FOLDER, DESTINATION_FOLDER)
-                .set(Sftp.FILE_TO_TRANSFER, outputFile)
-                .run();
-        //
-    
-        // int exitCode = success ? 0 : 1;
-        // System.exit(exitCode);
-    
-        // Clean
-        SpecsIo.delete(outputFile);
-    }
-    */
 }

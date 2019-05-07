@@ -93,21 +93,42 @@ public class GoogleSheets {
         SpecsSystem.programStandardInit();
     }
 
+    public static Sheets getSheets(File credentials) {
+
+        try {
+            // Build a new authorized API client service.
+            final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+
+            return new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY,
+                    getCredentials(HTTP_TRANSPORT, credentials))
+                            .setApplicationName(APPLICATION_NAME)
+                            .build();
+        } catch (Exception e) {
+            throw new RuntimeException("Problems while retrieving members Google Sheet", e);
+        }
+    }
+
+    public static SpecsSheets getSpecsSheets(String spreadsheetId, File credentials) {
+        Sheets sheets = getSheets(credentials);
+        return new SpecsSheets(spreadsheetId, sheets);
+    }
+
     public static List<String> getMembersDblp(String spreadsheetId, File credentials) {
         List<String> membersDblp = new ArrayList<>();
 
         try {
 
             // Build a new authorized API client service.
-            final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            // final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
             // final String spreadsheetId = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms";
 
             // final String range = "Class Data!A2:E";
             final String range = "Members!I3:K";
-            Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY,
-                    getCredentials(HTTP_TRANSPORT, credentials))
-                            .setApplicationName(APPLICATION_NAME)
-                            .build();
+            Sheets service = getSheets(credentials);
+            // Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY,
+            // getCredentials(HTTP_TRANSPORT, credentials))
+            // .setApplicationName(APPLICATION_NAME)
+            // .build();
             ValueRange response = service.spreadsheets().values()
                     .get(spreadsheetId, range)
                     .execute();
