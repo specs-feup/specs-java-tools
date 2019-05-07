@@ -55,7 +55,7 @@ public class GoogleSheets {
      * saved tokens/ folder.
      */
     private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY);
-    private static final String CREDENTIALS_FILE_PATH = "credentials-jbispo.json";
+    // private static final String CREDENTIALS_FILE_PATH = "credentials-jbispo.json";
 
     /**
      * Creates an authorized Credential object.
@@ -66,11 +66,13 @@ public class GoogleSheets {
      * @throws IOException
      *             If the credentials.json file cannot be found.
      */
-    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT, File credentials)
+            throws IOException {
         // System.out.println("JSON: " + SpecsIo.read(new File(CREDENTIALS_FILE_PATH)));
         // Load client secrets.
         // InputStream in = GoogleSheets.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
-        InputStream in = SpecsIo.toInputStream(new File(CREDENTIALS_FILE_PATH));
+        // InputStream in = SpecsIo.toInputStream(new File(CREDENTIALS_FILE_PATH));
+        InputStream in = SpecsIo.toInputStream(credentials);
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
         // Build flow and trigger user authorization request.
@@ -91,7 +93,7 @@ public class GoogleSheets {
         SpecsSystem.programStandardInit();
     }
 
-    public static List<String> getMembersDblp(String spreadsheetId) {
+    public static List<String> getMembersDblp(String spreadsheetId, File credentials) {
         List<String> membersDblp = new ArrayList<>();
 
         try {
@@ -102,9 +104,10 @@ public class GoogleSheets {
 
             // final String range = "Class Data!A2:E";
             final String range = "Members!I3:K";
-            Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                    .setApplicationName(APPLICATION_NAME)
-                    .build();
+            Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY,
+                    getCredentials(HTTP_TRANSPORT, credentials))
+                            .setApplicationName(APPLICATION_NAME)
+                            .build();
             ValueRange response = service.spreadsheets().values()
                     .get(spreadsheetId, range)
                     .execute();

@@ -33,6 +33,7 @@ public class SpecsInfoLauncher {
     public static final DataKey<String> PASS = KeyFactory.string("pass");
     public static final DataKey<String> HOST = KeyFactory.string("host");
     public static final DataKey<String> PORT = KeyFactory.string("port");
+    public static final DataKey<String> CREDENTIALS = KeyFactory.string("credentials");
 
     private final static String DESTINATION_FOLDER = "/var/www/html/test/db";
 
@@ -46,7 +47,8 @@ public class SpecsInfoLauncher {
 
         String spreadsheetId = properties.get(SPREADSHEET_ID);
 
-        List<String> dblpLinks = GoogleSheets.getMembersDblp(spreadsheetId);
+        List<String> dblpLinks = GoogleSheets.getMembersDblp(spreadsheetId,
+                properties.getExistingFile(CREDENTIALS).orElseThrow());
 
         SpecsLogs.info("Found " + dblpLinks.size() + " DBLP links");
 
