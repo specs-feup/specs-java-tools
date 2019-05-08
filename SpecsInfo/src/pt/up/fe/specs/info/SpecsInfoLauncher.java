@@ -67,7 +67,8 @@ public class SpecsInfoLauncher {
         filesForUpload.addAll(collector.collectFromDblp(dblpUsers));
 
         // Information about members
-        filesForUpload.addAll(new GroupMembers(spreadsheetId, credentials).collectInformation());
+        GroupMembers groupMembers = new GroupMembers(spreadsheetId, credentials);
+		filesForUpload.addAll(groupMembers.collectInformation());
 
         // Upload files
         if (properties.getBoolean(UPLOAD_TO_SERVER)) {

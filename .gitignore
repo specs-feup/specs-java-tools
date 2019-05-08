@@ -37,3 +37,4 @@ ivy/
 ### ignore media formats
 *.mp4
 *.wmv
+/SpecsInfo/credentials.json
