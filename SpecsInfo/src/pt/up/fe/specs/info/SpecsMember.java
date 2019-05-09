@@ -4,7 +4,6 @@ public class SpecsMember {
 
 	private String Name;
 	private String Affiliation;
-	private String Position;
 	private String Context;
 	private String CurrentStatus;
 	// optional
@@ -23,25 +22,15 @@ public class SpecsMember {
 	private String PublicKey;
 	private String Supervisor;
 
-	public SpecsMember(String name, String affiliation, String position, String context, String currentStatus) {
+	public SpecsMember(String affiliation, String position, String context, String currentStatus) {
 
-		Name = name;
 		Affiliation = affiliation;
-		Position = position;
 		Context = context;
 		CurrentStatus = currentStatus;
 	}
 
-	public void setName(String name) {
-		Name = name;
-	}
-
 	public void setAffiliation(String affiliation) {
 		Affiliation = affiliation;
-	}
-
-	public void setPosition(String position) {
-		Position = position;
 	}
 
 	public void setContext(String context) {

@@ -15,7 +15,9 @@ package pt.up.fe.specs.info;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import org.suikasoft.GsonPlus.JsonPersistence;
@@ -33,6 +35,42 @@ public class GroupMembers {
 		this.credentials = credentials;
 	}
 
+	public List<File> collectInformation() {
+
+		List<File> infoFiles = new ArrayList<>();
+
+		SpecsSheets service = GoogleSheets.getSpecsSheets(spreadsheetId, credentials);
+
+		ValueRange response = service.getValueRange("Members!B3:T");
+		List<List<Object>> values = response.getValues();
+		if (values == null || values.isEmpty()) {
+			throw new RuntimeException("No data found.");
+		}
+
+		List<Map<String,String>> mapsave = new ArrayList<>();
+		for (List<?> row : values) {
+			Map<String, String> map = new HashMap<>();
+
+			if (row.size() == 0) {
+				continue;
+			}
+
+			map.put("Name", (String) row.get(0));
+
+			map.put("Affiliation", (String) row.get(1));
+
+			mapsave.add(map);
+		}
+
+		JsonPersistence jp = new JsonPersistence();
+
+		File membersFile = new File(SPECS_MEMBERS_JSON_PATH);
+		jp.write(membersFile, mapsave);
+
+		infoFiles.add(membersFile);
+		return infoFiles;
+	}
+	
 	private void setField(int index, Consumer<String> func, List<?> row) {
 		
 		if (row.size() > index) {
@@ -43,149 +81,4 @@ public class GroupMembers {
 			}
 		}
 	}
-	
-	public List<File> collectInformation() {
-		
-		List<File> infoFiles = new ArrayList<>();
-
-		SpecsSheets service = GoogleSheets.getSpecsSheets(spreadsheetId, credentials);
-
-		ValueRange response = service.getValueRange("Members!B3:T");
-		List<List<Object>> values = response.getValues();
-		if (values == null || values.isEmpty()) {
-			throw new RuntimeException("No data found.");
-		}
-		List<SpecsMember> members = new ArrayList<>();
-
-		for (List<?> row : values) {
-
-			if(row.size() == 0) {
-				continue;
-			}
-			
-			String name = (String) row.get(0);
-			String affiliation = (String) row.get(1);
-			String position = (String) row.get(2);
-			String context = (String) row.get(4);
-			String currentStatus = (String) row.get(6);
-
-			SpecsMember member = new SpecsMember(name, affiliation, position, context, currentStatus);
-
-			String visitingPeriod = (String) row.get(3);
-			if (!visitingPeriod.isEmpty()) {
-				member.setVisitingPeriod(visitingPeriod);
-			}
-
-			setField(5, member::setFirstJob, row);
-			
-//			if (row.size() > 5) {
-//				String FirstJob = (String) row.get(5);
-//				if (!FirstJob.isEmpty()) {
-//					member.setFirstJob(FirstJob);
-//				}
-//			}
-
-			setField(7, member::setStatus, row);
-//			if (row.size() > 7) {
-//				String Status = (String) row.get(7);
-//				if (!Status.isEmpty()) {
-//					member.setStatus(Status);
-//				}
-//			}
-			setField(8, member::setORCID, row);
-//			if (row.size() > 8) {
-//				String ORCID = (String) row.get(8);
-//				if (!ORCID.isEmpty()) {
-//					member.setORCID(ORCID);
-//				}
-//			}
-			
-			setField(9, member::setDBLP, row);
-//			if (row.size() > 9) {
-//				String DBLP = (String) row.get(9);
-//				if (!DBLP.isEmpty()) {
-//					member.setDBLP(DBLP);
-//				}
-//			}
-			
-			setField(10, member::setResearchGate, row);
-//			if (row.size() > 10) {
-//				String ResearchGate = (String) row.get(10);
-//				if (!ResearchGate.isEmpty()) {
-//					member.setResearchGate(ResearchGate);
-//				}
-//			}
-			setField(11, member::setSchoolarGoogle, row);
-//			if (row.size() > 11) {
-//				String SchoolarGoogle = (String) row.get(11);
-//				if (!SchoolarGoogle.isEmpty()) {
-//					member.setSchoolarGoogle(SchoolarGoogle);
-//				}
-//			}
-			setField(12, member::setLinkedin, row);
-//			if (row.size() > 12) {
-//				String Linkedin = (String) row.get(12);
-//				if (!Linkedin.isEmpty()) {
-//					member.setLinkedin(Linkedin);
-//				}
-////			}
-			
-			setField(13, member::setTwitter, row);
-//			if (row.size() > 13) {
-//				String Twitter = (String) row.get(13);
-//				if (!Twitter.isEmpty()) {
-//					member.setTwitter(Twitter);
-//				}
-//			}
-			
-			setField(14, member::setWebPage, row);
-//			if (row.size() > 14) {
-//				String WebPage = (String) row.get(14);
-//				if (!WebPage.isEmpty()) {
-//					member.setWebPage(WebPage);
-//				}
-//			}
-			setField(15, member::setEmail, row);
-//			if (row.size() > 15) {
-//				String Email = (String) row.get(15);
-//				if (!Email.isEmpty()) {
-//					member.setEmail(Email);
-//				}
-//			}
-			setField(16, member::setFirstJobMsc, row);
-//			if (row.size() > 16) {
-//				String FirstJobMsc = (String) row.get(16);
-//				if (!FirstJobMsc.isEmpty()) {
-//					member.setFirstJobMsc(FirstJobMsc);
-//				}
-//			}
-			setField(17, member::setPublicKey, row);
-//			if (row.size() > 17) {
-//				String PublicKey = (String) row.get(17);
-//				if (!PublicKey.isEmpty()) {
-//					member.setPublicKey(PublicKey);
-//				}
-//			}
-			
-			setField(18, member::setSupervisor, row);
-//			if (row.size() > 18) {
-//				String Supervisor = (String) row.get(18);
-//				if (!Supervisor.isEmpty()) {
-//					member.setSupervisor(Supervisor);
-//				}
-//
-//			}
-
-			members.add(member);	
-		}
-
-		JsonPersistence jp = new JsonPersistence();
-		
-		File membersFile = new File(SPECS_MEMBERS_JSON_PATH);
-		jp.write(membersFile, members);
-		
-		infoFiles.add(membersFile);
-		return infoFiles;
-	}
-
 }
