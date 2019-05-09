@@ -18,10 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.suikasoft.GsonPlus.JsonPersistence;
+
 import com.google.api.services.sheets.v4.model.ValueRange;
 
 public class GroupMembers {
 
+	private static final String SPECS_MEMBERS_JSON_PATH = "real_specs_members.json";
 	private final String spreadsheetId;
 	private final File credentials;
 
@@ -42,6 +45,7 @@ public class GroupMembers {
 	}
 	
 	public List<File> collectInformation() {
+		
 		List<File> infoFiles = new ArrayList<>();
 
 		SpecsSheets service = GoogleSheets.getSpecsSheets(spreadsheetId, credentials);
@@ -53,7 +57,6 @@ public class GroupMembers {
 		}
 		List<SpecsMember> members = new ArrayList<>();
 
-		System.out.println("\nMembers test");
 		for (List<?> row : values) {
 
 			if(row.size() == 0) {
@@ -105,21 +108,21 @@ public class GroupMembers {
 //				}
 //			}
 			
-			setField(7, member::setStatus, row);
+			setField(10, member::setResearchGate, row);
 //			if (row.size() > 10) {
 //				String ResearchGate = (String) row.get(10);
 //				if (!ResearchGate.isEmpty()) {
 //					member.setResearchGate(ResearchGate);
 //				}
 //			}
-			setField(7, member::setStatus, row);
+			setField(11, member::setSchoolarGoogle, row);
 //			if (row.size() > 11) {
 //				String SchoolarGoogle = (String) row.get(11);
 //				if (!SchoolarGoogle.isEmpty()) {
 //					member.setSchoolarGoogle(SchoolarGoogle);
 //				}
 //			}
-//			setField(7, member::setStatus, row);
+			setField(12, member::setLinkedin, row);
 //			if (row.size() > 12) {
 //				String Linkedin = (String) row.get(12);
 //				if (!Linkedin.isEmpty()) {
@@ -127,7 +130,7 @@ public class GroupMembers {
 //				}
 ////			}
 			
-			setField(7, member::setStatus, row);
+			setField(13, member::setTwitter, row);
 //			if (row.size() > 13) {
 //				String Twitter = (String) row.get(13);
 //				if (!Twitter.isEmpty()) {
@@ -135,21 +138,21 @@ public class GroupMembers {
 //				}
 //			}
 			
-			setField(7, member::setStatus, row);
+			setField(14, member::setWebPage, row);
 //			if (row.size() > 14) {
 //				String WebPage = (String) row.get(14);
 //				if (!WebPage.isEmpty()) {
 //					member.setWebPage(WebPage);
 //				}
 //			}
-			setField(7, member::setStatus, row);
+			setField(15, member::setEmail, row);
 //			if (row.size() > 15) {
 //				String Email = (String) row.get(15);
 //				if (!Email.isEmpty()) {
 //					member.setEmail(Email);
 //				}
 //			}
-			setField(7, member::setStatus, row);
+			setField(16, member::setFirstJobMsc, row);
 //			if (row.size() > 16) {
 //				String FirstJobMsc = (String) row.get(16);
 //				if (!FirstJobMsc.isEmpty()) {
@@ -173,11 +176,15 @@ public class GroupMembers {
 //
 //			}
 
-			members.add(member);
-
-			
+			members.add(member);	
 		}
 
+		JsonPersistence jp = new JsonPersistence();
+		
+		File membersFile = new File(SPECS_MEMBERS_JSON_PATH);
+		jp.write(membersFile, members);
+		
+		infoFiles.add(membersFile);
 		return infoFiles;
 	}
 
