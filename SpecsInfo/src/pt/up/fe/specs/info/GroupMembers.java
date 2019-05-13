@@ -64,7 +64,35 @@ public class GroupMembers {
 
 			map.put("Position", (String) row.get(2));
 
+			// ........................Optional ...........................
+
 			map.put("Visiting Period", getValue(3, row));
+
+			map.put("First Job After PhD", getValue(5, row));
+
+			map.put("Status", getValue(7, row));
+
+			map.put("ORCID", getValue(8, row));
+
+			map.put("DBLP", getValue(9, row));
+
+			map.put("Research Gate", getValue(10, row));
+
+			map.put("Schoolar Google", getValue(11, row));
+
+			map.put("LinkedIn", getValue(12, row));
+
+			map.put("Twitter", getValue(13, row));
+
+			map.put("WebPage", getValue(14, row));
+
+			map.put("Email", getValue(15, row));
+
+			map.put("First Job After PhD/MSc", getValue(16, row));
+
+			map.put("Public Key FCT", getValue(17, row));
+
+			map.put("Supervisor", getValue(18, row));
 
 			mapsave.add(map);
 		}
