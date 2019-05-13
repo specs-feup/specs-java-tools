@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.suikasoft.GsonPlus.JsonPersistence;
 
@@ -47,7 +46,7 @@ public class GroupMembers {
 			throw new RuntimeException("No data found.");
 		}
 
-		List<Map<String,String>> mapsave = new ArrayList<>();
+		List<Map<String, String>> mapsave = new ArrayList<>();
 		for (List<?> row : values) {
 			Map<String, String> map = new HashMap<>();
 
@@ -58,6 +57,14 @@ public class GroupMembers {
 			map.put("Name", (String) row.get(0));
 
 			map.put("Affiliation", (String) row.get(1));
+
+			map.put("Context", (String) row.get(4));
+
+			map.put("Current Status", (String) row.get(6));
+
+			map.put("Position", (String) row.get(2));
+
+			map.put("Visiting Period", getValue(3, row));
 
 			mapsave.add(map);
 		}
@@ -70,15 +77,17 @@ public class GroupMembers {
 		infoFiles.add(membersFile);
 		return infoFiles;
 	}
-	
-	private void setField(int index, Consumer<String> func, List<?> row) {
-		
+
+	private String getValue(int index, List<?> row) {
+
 		if (row.size() > index) {
-			
+
 			String value = (String) row.get(index);
 			if (!value.isEmpty()) {
-				func.accept(value);
+				return value;
 			}
 		}
+
+		return null;
 	}
 }
