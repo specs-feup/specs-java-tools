@@ -27,5 +27,6 @@
 	
 	<dependencies>
 		<dependency org="org.jsoup" name="jsoup" rev="1.12.1"/>
+		<dependency org="org.apache.pdfbox" name="pdfbox" rev="2.0.16"/>
 	</dependencies>
 </ivy-module>

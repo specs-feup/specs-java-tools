@@ -8,5 +8,6 @@
 	<classpathentry kind="src" path="tools"/>
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=HtmlScrapper&amp;ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/SpecsUtils"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/GsonPlus"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
