@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,7 @@ import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsStrings;
 import pt.up.fe.specs.util.SpecsSystem;
+import pt.up.fe.specs.util.collections.AccumulatorMap;
 import pt.up.fe.specs.util.utilities.ProgressCounter;
 
 public class UpRepoParseHtml {
@@ -50,12 +52,28 @@ public class UpRepoParseHtml {
     private static final Type FILE_LIST_TYPE = new TypeToken<List<File>>() {
     }.getType();
 
-    private static final Pattern QUOTE_REGEX = Pattern.compile("[\"�'](.+)[\"�']\\W+(.+)\\n", Pattern.DOTALL);
-    private static final Pattern TOC_REGEX = Pattern.compile("�ndice|indice|index|resumo|contents",
+    private static final String ROMAN_NUMERALS = "M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})";
+    private static final Pattern ROMAN_NUMERALS_REGEX = Pattern.compile(ROMAN_NUMERALS);
+
+    // private static final Pattern QUOTE_REGEX = Pattern
+    // .compile("[\"“'](.+)[\"”']\\W*,?\\W*(.+)\\W*(" + ROMAN_NUMERALS + ")?\\W*\\n",
+    // Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+    private static final Pattern QUOTE_REGEX = Pattern
+            .compile("[\"“']((.|\\W)+)[\"”']\\W*,?\\W*(.+)\\W*(" + ROMAN_NUMERALS + ")?\\W*\\n",
+                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+    private static final Pattern TOC_REGEX = Pattern.compile("índice|indice|index|resumo|contents",
             Pattern.DOTALL | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+    private static final Pattern QUOTES_CHARACTERS = Pattern.compile("[\"“”']");
 
     private static final Map<File, List<String>> QUOTES = new HashMap<>();
     private static final List<File> NO_QUOTES = new ArrayList<>();
+
+    private static final Map<File, String> QUOTES_V2 = new HashMap<>();
+    private static final Map<File, String> DROPPED_QUOTE_CANDIDATES = new HashMap<>();
+
+    private static final List<String> QUOTES_V3 = new ArrayList<>();
 
     private static final int PAGES_TO_TEXT_THRESHOLD = 10;
 
@@ -76,10 +94,263 @@ public class UpRepoParseHtml {
         // extractThesisHandles();
         // downloadThesisWebpages();
         // downloadThesis();
-        processThesisPfds();
+        // processThesisPfds();
         // extractThesisPfdsToTxt();
         // processThesisPdf(new File("H:\\Scrapping\\UpRepoThesis\\thesisInfo\\100069\\35590.pdf"));
         // tesctThesisPdf();
+
+        // processThesisTxts();
+
+        List<Quote> quotes = extractQuotes();
+        quotesStats(quotes);
+
+        // countFeupThesis();
+    }
+
+    public static void countFeupThesis() {
+        var thesisFolder = new File("H:\\Scrapping\\UpRepoThesis\\thesisTxt");
+
+        Set<String> feupThesis = SpecsIo.getFiles(thesisFolder).stream()
+                .map(file -> file.getName().split("_")[0])
+                .collect(Collectors.toSet());
+
+        System.out.println("NUMBER OF THESIS: " + feupThesis.size());
+    }
+
+    public static void quotesStats(List<Quote> quotes) {
+        var accMap = new AccumulatorMap<String>();
+
+        quotes.stream().forEach(quote -> accMap.add(quote.getAuthor()));
+
+        System.out.println("TOTAL Quotes: " + quotes.size());
+        System.out.println("Diff authors: " + accMap.getAccMap().size());
+
+        int threshold = 10;
+        for (String author : accMap.getAccMap().keySet()) {
+            if (accMap.getCount(author) < threshold) {
+                continue;
+            }
+
+            System.out.println(author + ": " + accMap.getCount(author));
+        }
+
+        int max = -1;
+        String maxAuthor = null;
+        for (String author : accMap.getAccMap().keySet()) {
+            if (accMap.getCount(author) > max) {
+                max = accMap.getCount(author);
+                maxAuthor = author;
+            }
+        }
+
+        System.out.println("Max author: " + maxAuthor + " (" + max + ")");
+    }
+
+    public static List<Quote> extractQuotes() {
+        List<String> pages = new Gson().fromJson(SpecsIo.read(new File("H:\\Scrapping\\UpRepoThesis\\quotes_v3.json")),
+                List.class);
+
+        List<Quote> quotes = new ArrayList<>();
+        for (var page : pages) {
+            var quote = SpecsStrings.getRegex(page, QUOTE_REGEX);
+
+            if (quote.isEmpty()) {
+                continue;
+            }
+
+            // Remove all elements that are empty, or roman numerals
+            // quote = quote.stream()
+            // .filter(string -> !string.isBlank())
+            // .filter(string -> !SpecsStrings.matches(string, ROMAN_NUMERALS_REGEX))
+            // .collect(Collectors.toList());
+            System.out.println("\nQUOTE:\n");
+            // System.out.println(quote.stream().collect(Collectors.joining("'\n'", "'", "'")));
+
+            List<String> parsedQuote = new ArrayList<>();
+            for (var quotePart : quote) {
+                if (quotePart.isBlank()) {
+                    // System.out.println("FILTERED");
+                    continue;
+                }
+
+                // Skip very short lines
+                if (quotePart.length() < 5) {
+                    continue;
+                }
+
+                // System.out.println("'" + quotePart + "'");
+
+                parsedQuote.add(quotePart);
+            }
+
+            // Ignore if no text
+            if (parsedQuote.isEmpty()) {
+                continue;
+            }
+
+            Quote newQuote = Quote.parse(parsedQuote);
+
+            quotes.add(newQuote);
+            System.out.println(newQuote);
+            // quotes.add(quote);
+        }
+
+        // System.out.println(quotes.stream().map(List::toString).collect(Collectors.joining("\n")));
+        System.out.println("Found " + quotes.size() + " quotes");
+
+        return quotes;
+    }
+
+    public static void processThesisTxts() {
+        List<File> thesisTxts = SpecsIo.getFiles(new File("H:\\Scrapping\\UpRepoThesis\\thesisTxt"));
+
+        var counter = new ProgressCounter(thesisTxts.size());
+        for (var thesisTxt : thesisTxts) {
+            System.out.println("Processing " + thesisTxt + " " + counter.next());
+            processThesisTxtV2(thesisTxt);
+        }
+
+        // Save complete version
+        SpecsIo.write(new File("H:\\Scrapping\\UpRepoThesis\\quotes_v3.json"), SpecsGson.toJson(QUOTES_V3));
+    }
+
+    public static void processThesisTxtV2(File thesisTxt) {
+        // System.out.println("FUILE: " + SpecsIo.read(thesisTxt));
+        List<String> pages = new Gson().fromJson(SpecsIo.read(thesisTxt), List.class);
+        // System.out.println("PAGES: " + pages);
+
+        int minimumSize = 50;
+        int maximumSize = 300;
+        int initialIgnorePages = 3;
+        int saveEvery = 100;
+
+        int currentPage = 0;
+        int smallestPage = -1;
+        int smallestPageIndex = -1;
+        for (var page : pages) {
+            currentPage++;
+
+            // Ignore a set of initial pages
+            if (currentPage <= initialIgnorePages) {
+                continue;
+            }
+
+            // Strip white space
+            // var normalizedPage = page.strip();
+            var normalizedPage = page.replaceAll("\\s", "");
+
+            // Ignore if empty
+            if (normalizedPage.isEmpty()) {
+                continue;
+            }
+
+            // Ignore if less than minimum size or higher than maximum size
+            if (normalizedPage.length() < minimumSize || normalizedPage.length() > maximumSize) {
+                // System.out.println("Ignoring page " + currentPage + " since it is smaller (" +
+                // normalizedPage.length()
+                // + ") than the minimum size (" + minimumSize + "): " + normalizedPage);
+                continue;
+            }
+
+            // Ignore if does not contain a quote
+            if (!SpecsStrings.matches(normalizedPage, QUOTES_CHARACTERS)) {
+                continue;
+            }
+
+            // Store page
+            QUOTES_V3.add(page);
+        }
+
+        // Save quotes
+        if (QUOTES_V3.size() % saveEvery == 0) {
+            SpecsIo.write(new File("H:\\Scrapping\\UpRepoThesis\\quotes_v3.json"), SpecsGson.toJson(QUOTES_V3));
+        }
+
+    }
+
+    public static void processThesisTxt(File thesisTxt) {
+        // System.out.println("FUILE: " + SpecsIo.read(thesisTxt));
+        List<String> pages = new Gson().fromJson(SpecsIo.read(thesisTxt), List.class);
+        // System.out.println("PAGES: " + pages);
+
+        int minimumSize = 50;
+        int maximumSize = 300;
+        int initialIgnorePages = 3;
+
+        int currentPage = 0;
+        int smallestPage = -1;
+        int smallestPageIndex = -1;
+        for (var page : pages) {
+            currentPage++;
+
+            // Ignore a set of initial pages
+            if (currentPage <= initialIgnorePages) {
+                continue;
+            }
+
+            // Strip white space
+            // var normalizedPage = page.strip();
+            var normalizedPage = page.replaceAll("\\s", "");
+
+            // Ignore if empty
+            if (normalizedPage.isEmpty()) {
+                continue;
+            }
+
+            // Ignore if less than minimum size or higher than maximum size
+            if (normalizedPage.length() < minimumSize || normalizedPage.length() > maximumSize) {
+                // System.out.println("Ignoring page " + currentPage + " since it is smaller (" +
+                // normalizedPage.length()
+                // + ") than the minimum size (" + minimumSize + "): " + normalizedPage);
+                continue;
+            }
+
+            // Store if smallest
+            if (smallestPage == -1 || normalizedPage.length() < smallestPage) {
+                smallestPage = normalizedPage.length();
+                smallestPageIndex = currentPage - 1;
+            }
+
+        }
+
+        if (smallestPageIndex == -1) {
+            System.out.println("No page found");
+            return;
+        }
+
+        var citationCandidate = pages.get(smallestPageIndex);
+
+        if (citationCandidate.length() > maximumSize) {
+            System.out.println(
+                    "Dropping citation candidate, size (" + citationCandidate.length()
+                            + ") larger than maximum allowed (" + maximumSize + "):\n" + citationCandidate);
+
+            DROPPED_QUOTE_CANDIDATES.put(thesisTxt, citationCandidate);
+            SpecsIo.write(new File("H:\\Scrapping\\UpRepoThesis\\dropped_quote_candidates.json"),
+                    SpecsGson.toJson(DROPPED_QUOTE_CANDIDATES));
+
+            return;
+        }
+
+        System.out.println("CITATION CANDIDATE:");
+        System.out.println(citationCandidate);
+        System.out.println("SIZE: " + pages.get(smallestPageIndex).length());
+
+        QUOTES_V2.put(thesisTxt, citationCandidate);
+        SpecsIo.write(new File("H:\\Scrapping\\UpRepoThesis\\quotes_v2.json"), SpecsGson.toJson(QUOTES_V2));
+
+        /*
+        if (foundQuote) {
+            System.out.println("\nFound quote " + QUOTES.size() + " at page " + currentPage + ", saving");
+            System.out.println(QUOTES.get(thesisTxt));
+            SpecsIo.write(new File("H:\\Scrapping\\UpRepoThesis\\quotes.json"), SpecsGson.toJson(QUOTES));
+        } else {
+            System.out.println("No quote found");
+            NO_QUOTES.add(thesisTxt);
+            SpecsIo.write(new File("H:\\Scrapping\\UpRepoThesis\\no_quotes_list.json"),
+                    SpecsGson.toJson(NO_QUOTES));
+        }
+        */
     }
 
     /**
