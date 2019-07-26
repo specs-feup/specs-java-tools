@@ -182,7 +182,7 @@ public class XmlCollector implements Collector {
         // if (value.endsWith(" 0001")) {
         // System.out.println("PARSING " + value);
         if (SpecsStrings.matches(value, END_DIGITS)) {
-            // if (value.equals("Luís Reis 0001")) {
+            // if (value.equals("LuÃ­s Reis 0001")) {
             // System.out.println("MATCHED! " + value);
             // System.out.println("Returning " + value.substring(0, value.length() - 5));
             return value.substring(0, value.length() - 5);
