@@ -13,6 +13,8 @@
 
 package pt.up.fe.specs.info;
 
+import java.io.File;
+
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
@@ -20,6 +22,10 @@ public class SpecsSheets {
 
     private final String spreadsheetId;
     private final Sheets sheets;
+
+    public SpecsSheets(String spreadsheetId, File credentials) {
+        this(spreadsheetId, GoogleSheets.getSheets(credentials));
+    }
 
     public SpecsSheets(String spreadsheetId, Sheets sheets) {
         this.spreadsheetId = spreadsheetId;
