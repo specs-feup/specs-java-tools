@@ -1,0 +1,5 @@
+		<!-- Create Zip file -->
+		<zip destfile="<OUTPUT_ZIP_FILE>" zip64Mode="always">
+			<zipfileset dir="./" includes="<OUTPUT_JAR_FILENAME>"/>
+			<JAR_ZIPFILESET>
+		</zip>

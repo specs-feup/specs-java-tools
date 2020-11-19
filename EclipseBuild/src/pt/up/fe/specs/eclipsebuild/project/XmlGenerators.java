@@ -35,6 +35,7 @@ import pt.up.fe.specs.eclipsebuild.EclipseBuildResource;
 import pt.up.fe.specs.eclipsebuild.option.EclipseBuildKeys;
 import pt.up.fe.specs.eclipsebuild.option.EclipseRepo;
 import pt.up.fe.specs.util.SpecsIo;
+import pt.up.fe.specs.util.exceptions.NotImplementedException;
 import pt.up.fe.specs.util.utilities.Replacer;
 
 public class XmlGenerators {
@@ -272,6 +273,23 @@ public class XmlGenerators {
             return "";
         }
 
+        // Get JAR type
+        var jarType = config.get(EclipseBuildKeys.JAR_TYPE);
+
+        switch (jarType) {
+        case REPACK:
+            return getJarRepackXml(eclipseProjects, config);
+        case SUBFOLDER:
+            return getJarSubfolderXml(eclipseProjects, config, false);
+        case ZIP:
+            return getJarSubfolderXml(eclipseProjects, config, true);
+        default:
+            throw new NotImplementedException(jarType);
+        }
+
+    }
+
+    public static String getJarRepackXml(Map<String, EclipseProject> eclipseProjects, DataStore config) {
         String projectName = config.get(EclipseBuildKeys.PROJECT_NAME);
 
         String compileTarget = BuildUtils.getCompileTargetName(projectName);
@@ -289,6 +307,105 @@ public class XmlGenerators {
         jarTarget.replace("<OUTPUT_JAR_FILE>", outputJarFile);
         jarTarget.replace("<MAIN_CLASS>", mainClassAttribute);
         jarTarget.replace("<FILESET>", fileset);
+
+        return jarTarget.toString();
+    }
+
+    public static String getJarSubfolderXml(Map<String, EclipseProject> eclipseProjects, DataStore config,
+            boolean zip) {
+
+        String projectName = config.get(EclipseBuildKeys.PROJECT_NAME);
+
+        String compileTarget = BuildUtils.getCompileTargetName(projectName);
+        String outputJarFile = projectName + ".jar";
+
+        String mainClassAttribute = config.hasValue(EclipseBuildKeys.MAIN_CLASS)
+                ? getMainClassAttribute(config.get(EclipseBuildKeys.MAIN_CLASS))
+                : "";
+
+        String fileset = buildFileset(projectName, eclipseProjects, true);
+
+        var eclipseProject = eclipseProjects.get(projectName);
+        var classpathFiles = eclipseProject.getClasspath();
+        var ivyFolders = getIvyFolders(classpathFiles, eclipseProjects);
+        var libFoldername = projectName + "_lib";
+
+        List<File> jarFileList = DeployUtils.getJarFiles(classpathFiles.getJarFiles(), ivyFolders, false);
+
+        String jarList = jarFileList.stream()
+                .map(jarFile -> libFoldername + "/" + jarFile.getName())
+                .collect(Collectors.joining(" "));
+
+        var mainFileset = DeployUtils.buildMainFileset(eclipseProject.getProjectData(), projectName);
+
+        var zipOrCopy = zip ? getZipXml(eclipseProjects, config) : getCopyXml(eclipseProjects, config);
+
+        Replacer jarTarget = new Replacer(EclipseBuildResource.DEPLOY_SUBFOLDER_TEMPLATE);
+
+        jarTarget.replace("<OUTPUT_JAR_FILE>", outputJarFile);
+        jarTarget.replace("<MAIN_CLASS>", mainClassAttribute);
+        jarTarget.replace("<JAR_LIST>", jarList);
+        jarTarget.replace("<MAIN_FILESET>", mainFileset);
+        jarTarget.replace("<ZIP_OR_COPY>", zipOrCopy);
+
+        return jarTarget.toString();
+    }
+
+    public static String getZipXml(Map<String, EclipseProject> eclipseProjects, DataStore config) {
+        String projectName = config.get(EclipseBuildKeys.PROJECT_NAME);
+        String outputJarFilename = projectName + ".jar";
+
+        // Output Zip
+        String outputZip = SpecsIo.removeExtension(outputJarFilename) + ".zip";
+
+        // JAR ZIP Fileset
+
+        var eclipseProject = eclipseProjects.get(projectName);
+        var classpathFiles = eclipseProject.getClasspath();
+        var parser = eclipseProject.getProjectData();
+
+        Collection<String> dependentProjects = parser.getDependentProjects(projectName);
+        Collection<String> projectsWithIvy = BuildUtils.filterProjectsWithIvy(parser, dependentProjects);
+        Collection<String> ivyFolders = projectsWithIvy.stream()
+                .map(ivyProject -> BuildUtils.getIvyJarFoldername(parser.getClasspath(ivyProject).getProjectFolder()))
+                .collect(Collectors.toList());
+
+        List<File> jarFileList = DeployUtils.getJarFiles(classpathFiles.getJarFiles(), ivyFolders, false);
+        String libFoldername = projectName + "_lib";
+
+        String jarZipfileset = DeployUtils.buildJarZipfileset(jarFileList, libFoldername);
+
+        Replacer jarTarget = new Replacer(EclipseBuildResource.DEPLOY_ZIP_TEMPLATE);
+
+        jarTarget.replace("<OUTPUT_JAR_FILENAME>", outputJarFilename);
+        jarTarget.replace("<OUTPUT_ZIP_FILE>", outputZip);
+        jarTarget.replace("<JAR_ZIPFILESET>", jarZipfileset);
+
+        return jarTarget.toString();
+    }
+
+    public static String getCopyXml(Map<String, EclipseProject> eclipseProjects, DataStore config) {
+        String projectName = config.get(EclipseBuildKeys.PROJECT_NAME);
+
+        var eclipseProject = eclipseProjects.get(projectName);
+        var classpathFiles = eclipseProject.getClasspath();
+        var parser = eclipseProject.getProjectData();
+
+        Collection<String> dependentProjects = parser.getDependentProjects(projectName);
+        Collection<String> projectsWithIvy = BuildUtils.filterProjectsWithIvy(parser, dependentProjects);
+        Collection<String> ivyFolders = projectsWithIvy.stream()
+                .map(ivyProject -> BuildUtils.getIvyJarFoldername(parser.getClasspath(ivyProject).getProjectFolder()))
+                .collect(Collectors.toList());
+
+        List<File> jarFileList = DeployUtils.getJarFiles(classpathFiles.getJarFiles(), ivyFolders, false);
+        String libFoldername = projectName + "_lib";
+
+        String jarZipfileset = DeployUtils.buildJarZipfileset(jarFileList, libFoldername);
+
+        Replacer jarTarget = new Replacer(EclipseBuildResource.DEPLOY_COPY_TEMPLATE);
+
+        jarTarget.replace("<JAR_ZIPFILESET>", jarZipfileset);
+        jarTarget.replace("<LIB_FOLDERNAME>", libFoldername);
 
         return jarTarget.toString();
     }
@@ -325,12 +442,7 @@ public class XmlGenerators {
         }
 
         // Get ivy folders
-        List<String> ivyFolders = classpathFiles.getDependentProjects().stream()
-                .map(eclipseProjects::get)
-                .map(EclipseProject::getClasspath)
-                .filter(classpath -> classpath.usesIvy())
-                .map(classpath -> classpath.getIvyJarFolder().get().getAbsolutePath())
-                .collect(Collectors.toList());
+        List<String> ivyFolders = getIvyFolders(classpathFiles, eclipseProjects);
 
         // Add self, if present
         classpathFiles.getIvyJarFolder().map(File::getAbsolutePath).ifPresent(ivyFolders::add);
@@ -341,6 +453,18 @@ public class XmlGenerators {
         }
 
         return fileset.toString();
+    }
+
+    private static List<String> getIvyFolders(ClasspathFiles classpathFiles,
+            Map<String, EclipseProject> eclipseProjects) {
+
+        List<String> ivyFolders = classpathFiles.getDependentProjects().stream()
+                .map(eclipseProjects::get)
+                .map(EclipseProject::getClasspath)
+                .filter(classpath -> classpath.usesIvy())
+                .map(classpath -> classpath.getIvyJarFolder().get().getAbsolutePath())
+                .collect(Collectors.toList());
+        return ivyFolders;
     }
 
     public static String buildFileset(ClasspathParser parser, String projetName, Collection<String> ivyFolders,

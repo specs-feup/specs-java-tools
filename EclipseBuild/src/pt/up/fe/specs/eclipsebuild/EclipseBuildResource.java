@@ -24,7 +24,10 @@ public enum EclipseBuildResource implements ResourceProvider {
     RESOLVE_TEMPLATE("resolve.xml.template"),
     JAR_TEMPLATE("jar.xml.template"),
     MAIN_TEMPLATE("main.xml.template"),
-    DEPLOY_REPACK_TEMPLATE("deploy_repack.xml.template");
+    DEPLOY_REPACK_TEMPLATE("deploy_repack.xml.template"),
+    DEPLOY_SUBFOLDER_TEMPLATE("deploy_subfolder.xml.template"),
+    DEPLOY_ZIP_TEMPLATE("zip.xml.template"),
+    DEPLOY_COPY_TEMPLATE("copy.xml.template");
 
     private final static String RESOURCE_FOLDER = "eclipsebuild";
 

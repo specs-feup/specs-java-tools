@@ -19,6 +19,8 @@ import java.util.List;
 import org.suikasoft.jOptions.Datakey.DataKey;
 import org.suikasoft.jOptions.Datakey.KeyFactory;
 
+import pt.up.fe.specs.eclipsebuild.JarType;
+
 public interface EclipseBuildKeys {
 
     /**
@@ -62,4 +64,6 @@ public interface EclipseBuildKeys {
      * slower, but it is usually necessary if EclipseBuild is used to execute the build.
      */
     DataKey<Boolean> JVM_JAVAC = KeyFactory.bool("eclipse_build_jvm_javac");
+
+    DataKey<JarType> JAR_TYPE = KeyFactory.enumeration("jarType", JarType.class).setDefault(() -> JarType.REPACK);
 }

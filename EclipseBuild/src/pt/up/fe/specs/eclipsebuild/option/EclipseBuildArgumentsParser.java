@@ -47,6 +47,7 @@ public class EclipseBuildArgumentsParser {
         ARGUMENTS_PARSER.put("--clean", EclipseBuildArgumentsParser.addBool(EclipseBuildKeys.CLEAN));
         ARGUMENTS_PARSER.put("--project", EclipseBuildArgumentsParser.addString(EclipseBuildKeys.PROJECT_NAME));
         ARGUMENTS_PARSER.put("--main", EclipseBuildArgumentsParser.addString(EclipseBuildKeys.MAIN_CLASS));
+        ARGUMENTS_PARSER.put("--jar", EclipseBuildArgumentsParser.addEnum(EclipseBuildKeys.JAR_TYPE));
         ARGUMENTS_PARSER.put("--config", EclipseBuildArgumentsParser::parseConfig);
     }
 
@@ -98,6 +99,13 @@ public class EclipseBuildArgumentsParser {
 
     private static <V> BiConsumer<ListParser<String>, DataStore> addString(DataKey<String> key) {
         return addValueFromList(key, ListParser::popSingle);
+    }
+
+    private static <E extends Enum<E>, V> BiConsumer<ListParser<String>, DataStore> addEnum(DataKey<E> key) {
+        return addValueFromList(key, list -> {
+            var enumValue = list.popSingle();
+            return key.decode(enumValue.toUpperCase());
+        });
     }
 
     /**
@@ -193,8 +201,9 @@ public class EclipseBuildArgumentsParser {
         message.append(" --build: builds the project\n");
         message.append(" --clean: cleans the temporary folder\n");
         message.append(" --list: shows the dependencies of the specified project\n");
-        message.append(" --project: the name of the Eclipse project to compile\n");
-        message.append(" --main: the class of the project with the main function\n");
+        message.append(" --project <name>: the name of the Eclipse project to compile\n");
+        message.append(" --main <full classname>: the class of the project with the main function\n");
+        message.append(" --jar <type>: the type of JAR to generate. Available options: repack, subfolder, zip\n");
         message.append(
                 " --config <config>: specify a configuration file (local or remote). A configuration file is a plain text file with EclipseBuild commands\n");
         message.append(

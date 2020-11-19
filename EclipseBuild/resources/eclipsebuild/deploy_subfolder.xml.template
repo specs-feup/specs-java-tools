@@ -1,0 +1,15 @@
+
+	<!--ANT 1.7 is required  -->
+	 <target name="create_jar">
+	    <jar destfile="<OUTPUT_JAR_FILE>" zip64Mode="always">
+			<manifest>
+				<MAIN_CLASS>
+				<attribute name="Class-Path" value=". <JAR_LIST>" />
+			</manifest>
+			<MAIN_FILESET>
+		</jar>
+		
+
+		<ZIP_OR_COPY>
+
+	</target>

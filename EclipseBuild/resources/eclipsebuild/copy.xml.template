@@ -1,0 +1,4 @@
+		<!-- Copy jars to subfolder -->
+		<copy todir="./<LIB_FOLDERNAME>">
+		  <JAR_ZIPFILESET>
+		</copy>

@@ -1,6 +1,5 @@
 
 	<!--ANT 1.7 is required  -->
-	 <!-- <target name="create_jar" depends="<COMPILE_TARGET>"> -->
 	 <target name="create_jar">
 	    <jar destfile="<OUTPUT_JAR_FILE>" filesetmanifest="mergewithoutmain" zip64Mode="always">
 			<manifest>
