@@ -30,6 +30,7 @@ import com.google.common.base.Preconditions;
 
 import pt.up.fe.specs.eclipsebuild.EclipseBuildLog;
 import pt.up.fe.specs.util.SpecsIo;
+import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.parsing.ListParser;
 import pt.up.fe.specs.util.parsing.arguments.ArgumentsParser;
 import pt.up.fe.specs.util.utilities.LineStream;
@@ -84,7 +85,8 @@ public class EclipseBuildArgumentsParser {
      * @return
      */
     private static <V> BiConsumer<ListParser<String>, DataStore> addValue(DataKey<V> key, V value) {
-        return (list, dataStore) -> dataStore.add(key, value);
+        // return (list, dataStore) -> dataStore.add(key, value);
+        return (list, dataStore) -> addElement(dataStore, key, value);
     }
 
     private static <V> BiConsumer<ListParser<String>, DataStore> addValueFromList(DataKey<V> key,
@@ -92,9 +94,19 @@ public class EclipseBuildArgumentsParser {
 
         return (list, dataStore) -> {
             V value = processArgs.apply(list);
-            dataStore.add(key, value);
+            // dataStore.add(key, value);
+            addElement(dataStore, key, value);
         };
 
+    }
+
+    private static <V> void addElement(DataStore dataStore, DataKey<V> key, V value) {
+        if (dataStore.hasValue(key)) {
+            var previousValue = dataStore.get(key);
+            SpecsLogs.info("Duplicated flag for key '" + key + "', replacing value '" + previousValue + "' with '"
+                    + value + "'");
+        }
+        dataStore.set(key, value);
     }
 
     private static <V> BiConsumer<ListParser<String>, DataStore> addString(DataKey<String> key) {
