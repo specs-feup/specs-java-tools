@@ -190,12 +190,15 @@ public class XmlGenerators {
 
             // Single reports folder for all tests
             // File reportsFolder = IoUtils.safeFolder(eclipseProject.getProjectRepo(), "reports");
+            /*
             File reportsFolder = SpecsIo.mkdir(SpecsIo.getWorkingDir(), "reports");
-
+            
             // Clean reports
             SpecsIo.deleteFolderContents(reportsFolder);
-
+            
             String reportsDir = SpecsIo.getCanonicalPath(reportsFolder);
+            */
+            String reportsDir = getReportsDir();
 
             Replacer projectBuild = new Replacer(BuildResource.JUNIT_TEMPLATE);
 
@@ -212,6 +215,15 @@ public class XmlGenerators {
         }
 
         return junitXml.toString();
+    }
+
+    public static String getReportsDir() {
+        File reportsFolder = SpecsIo.mkdir(SpecsIo.getWorkingDir(), "reports");
+
+        // Clean reports
+        SpecsIo.deleteFolderContents(reportsFolder);
+
+        return SpecsIo.getCanonicalPath(reportsFolder);
     }
 
     public static String getBenchmarkerXml(Map<String, EclipseProject> eclipseProjects) {

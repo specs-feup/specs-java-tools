@@ -120,6 +120,8 @@ public class EclipseBuildLauncher {
 
         String junitTargets = getJUnitTargets(config, projectNames, projectData);
 
+        String reportsDir = XmlGenerators.getReportsDir();
+
         Replacer antBuild = new Replacer(EclipseBuildResource.MAIN_TEMPLATE);
 
         antBuild.replace("<USE_IVY>", ivyImport);
@@ -130,6 +132,7 @@ public class EclipseBuildLauncher {
         antBuild.replace("<ALL_JUNIT_TARGETS>", junitTargets);
         antBuild.replace("<JUNIT_TARGETS>", XmlGenerators.buildJUnitTarget(eclipseProjectsValues));
         antBuild.replace("<BENCH_TARGETS>", benchmarker);
+        antBuild.replace("<REPORT_DIR>", reportsDir);
 
         // Save script
         // File buildFile = new File(repFolder, "build_test.xml");
@@ -180,14 +183,14 @@ public class EclipseBuildLauncher {
             var projectName = config.get(EclipseBuildKeys.PROJECT_NAME);
             var dependentProjectsAndSelf = projectData.getDependentProjectsAndSelf(projectName);
             SpecsLogs.debug(() -> "EclipseBuild: dependent projects and self -> " + dependentProjectsAndSelf);
-            var projectTests = BuildUtils.getJUnitTargetDependencies(dependentProjectsAndSelf);
+            var projectTests = BuildUtils.getJUnitTargetDependencies(dependentProjectsAndSelf, true);
             SpecsLogs.debug(() -> "EclipseBuild: junits -> " + projectTests);
             return projectTests;
             // return BuildUtils.getJUnitTargetDependencies(projectData.getDependentProjectsAndSelf(projectName));
         }
 
         // Otherwise, return all junit targets
-        return BuildUtils.getJUnitTargetDependencies(projectNames);
+        return BuildUtils.getJUnitTargetDependencies(projectNames, true);
 
     }
 
