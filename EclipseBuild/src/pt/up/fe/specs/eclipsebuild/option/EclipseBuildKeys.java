@@ -45,6 +45,11 @@ public interface EclipseBuildKeys {
     DataKey<Boolean> BUILD = KeyFactory.bool("eclipse_build_build");
 
     /**
+     * If true, uses ANT to build the project.
+     */
+    DataKey<Boolean> TEST = KeyFactory.bool("eclipse_build_test");
+
+    /**
      * If true, cleans temporary folder before building the project.
      */
     DataKey<Boolean> CLEAN = KeyFactory.bool("eclipse_build_clean");

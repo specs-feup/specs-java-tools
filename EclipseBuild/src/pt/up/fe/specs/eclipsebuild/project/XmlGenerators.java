@@ -182,6 +182,7 @@ public class XmlGenerators {
             ClasspathFiles classpathFiles = eclipseProject.getClasspath();
 
             String targetName = BuildUtils.getJUnitTargetName(eclipseProject.getName());
+            String compileTargetName = BuildUtils.getCompileTargetName(eclipseProject.getName());
             String testsFolder = eclipseProject.getProjectFolder().getAbsolutePath();
             String binFoldername = eclipseProject.getBinFolder().getAbsolutePath();
             String fileset = BuildUtils.buildFileset(eclipseProject.getName(), eclipseProject.getProjectData());
@@ -199,6 +200,7 @@ public class XmlGenerators {
             Replacer projectBuild = new Replacer(BuildResource.JUNIT_TEMPLATE);
 
             projectBuild.replace("<JUNIT_TARGET_NAME>", targetName);
+            projectBuild.replace("<COMPILE_TARGET_NAME>", compileTargetName);
             projectBuild.replace("<PROJECT_NAME>", eclipseProject.getName());
             projectBuild.replace("<TESTS_FOLDER>", testsFolder);
             projectBuild.replace("<FILESET>", fileset);

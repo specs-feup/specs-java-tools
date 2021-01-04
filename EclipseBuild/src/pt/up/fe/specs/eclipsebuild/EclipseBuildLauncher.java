@@ -118,6 +118,8 @@ public class EclipseBuildLauncher {
         // Bechmarker
         String benchmarker = XmlGenerators.getBenchmarkerXml(eclipseProjects);
 
+        String junitTargets = getJUnitTargets(config, projectNames, projectData);
+
         Replacer antBuild = new Replacer(EclipseBuildResource.MAIN_TEMPLATE);
 
         antBuild.replace("<USE_IVY>", ivyImport);
@@ -125,8 +127,7 @@ public class EclipseBuildLauncher {
         antBuild.replace("<CLEAN>", clean);
         antBuild.replace("<ALL_COMPILE_TARGETS>", BuildUtils.getDependenciesSuffix(projectNames));
         antBuild.replace("<COMPILE_TARGETS>", compileTargets);
-
-        antBuild.replace("<ALL_JUNIT_TARGETS>", BuildUtils.getJUnitTargetDependencies(projectNames));
+        antBuild.replace("<ALL_JUNIT_TARGETS>", junitTargets);
         antBuild.replace("<JUNIT_TARGETS>", XmlGenerators.buildJUnitTarget(eclipseProjectsValues));
         antBuild.replace("<BENCH_TARGETS>", benchmarker);
 
@@ -139,11 +140,13 @@ public class EclipseBuildLauncher {
         SpecsLogs.msgInfo("ANT Build file written (" + buildFile.getAbsolutePath() + ")");
 
         // Build
-        if (config.get(EclipseBuildKeys.BUILD)) {
+        if (config.get(EclipseBuildKeys.BUILD) || config.get(EclipseBuildKeys.TEST)) {
 
             String compileTarget = config.hasValue(EclipseBuildKeys.PROJECT_NAME)
                     ? BuildUtils.getCompileTargetName(config.get(EclipseBuildKeys.PROJECT_NAME))
                     : null;
+
+            String mainTarget = config.get(EclipseBuildKeys.TEST) ? "junit" : compileTarget;
 
             // Add new target for build
 
@@ -155,7 +158,7 @@ public class EclipseBuildLauncher {
 
             // Compile. This must run before we create the JAR XML, otherwise it will not know
             // which JAR files are needed from Ivy dependencies
-            DeployUtils.runAnt(buildFile, compileTarget);
+            DeployUtils.runAnt(buildFile, mainTarget);
 
             // If a project was specified, create and run jar target
             File jarTargetFile = null;
@@ -166,6 +169,25 @@ public class EclipseBuildLauncher {
             }
 
         }
+
+    }
+
+    private static String getJUnitTargets(DataStore config, List<String> projectNames,
+            ClasspathParser projectData) {
+
+        // If test flag and project name, run only junit targets to that project
+        if (config.get(EclipseBuildKeys.TEST) && config.hasValue(EclipseBuildKeys.PROJECT_NAME)) {
+            var projectName = config.get(EclipseBuildKeys.PROJECT_NAME);
+            var dependentProjectsAndSelf = projectData.getDependentProjectsAndSelf(projectName);
+            SpecsLogs.debug(() -> "EclipseBuild: dependent projects and self -> " + dependentProjectsAndSelf);
+            var projectTests = BuildUtils.getJUnitTargetDependencies(dependentProjectsAndSelf);
+            SpecsLogs.debug(() -> "EclipseBuild: junits -> " + projectTests);
+            return projectTests;
+            // return BuildUtils.getJUnitTargetDependencies(projectData.getDependentProjectsAndSelf(projectName));
+        }
+
+        // Otherwise, return all junit targets
+        return BuildUtils.getJUnitTargetDependencies(projectNames);
 
     }
 
