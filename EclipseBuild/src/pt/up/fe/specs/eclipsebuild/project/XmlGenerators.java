@@ -188,17 +188,7 @@ public class XmlGenerators {
             String fileset = BuildUtils.buildFileset(eclipseProject.getName(), eclipseProject.getProjectData());
             String junitSourceFolders = BuildUtils.buildJUnitSources(classpathFiles);
 
-            // Single reports folder for all tests
-            // File reportsFolder = IoUtils.safeFolder(eclipseProject.getProjectRepo(), "reports");
-            /*
-            File reportsFolder = SpecsIo.mkdir(SpecsIo.getWorkingDir(), "reports");
-            
-            // Clean reports
-            SpecsIo.deleteFolderContents(reportsFolder);
-            
-            String reportsDir = SpecsIo.getCanonicalPath(reportsFolder);
-            */
-            String reportsDir = getReportsDir();
+            String reportsDir = BuildUtils.getReportsDir();
 
             Replacer projectBuild = new Replacer(BuildResource.JUNIT_TEMPLATE);
 
@@ -217,14 +207,24 @@ public class XmlGenerators {
         return junitXml.toString();
     }
 
-    public static String getReportsDir() {
-        File reportsFolder = SpecsIo.mkdir(SpecsIo.getWorkingDir(), "reports");
-
-        // Clean reports
-        SpecsIo.deleteFolderContents(reportsFolder);
-
-        return SpecsIo.getCanonicalPath(reportsFolder);
-    }
+    // /**
+    // * Helper method which uses the current working directory as the base folder.
+    // *
+    // * @return
+    // */
+    // public static String getReportsDir() {
+    // return getReportsDir(SpecsIo.getWorkingDir());
+    // }
+    //
+    // public static String getReportsDir(File baseFolder) {
+    //
+    // File reportsFolder = SpecsIo.mkdir(baseFolder, "reports");
+    //
+    // // Clean reports
+    // SpecsIo.deleteFolderContents(reportsFolder);
+    //
+    // return SpecsIo.getCanonicalPath(reportsFolder);
+    // }
 
     public static String getBenchmarkerXml(Map<String, EclipseProject> eclipseProjects) {
 
@@ -260,12 +260,15 @@ public class XmlGenerators {
         String fileset = BuildUtils.buildFileset(projectName, eclipseProject.getProjectData());
         String junitSourceFolders = BuildUtils.buildBenchmarkerSources(eclipseProject.getClasspath());
 
-        File reportsFolder = SpecsIo.mkdir(eclipseProject.getProjectRepo(), "reports");
+        String reportsDir = BuildUtils.getReportsDir(eclipseProject.getProjectRepo());
+        // String reportsDir = XmlGenerators.getReportsDir(eclipseProject.getProjectRepo());
 
-        // Clean reports
-        SpecsIo.deleteFolderContents(reportsFolder);
-
-        String reportsDir = reportsFolder.getAbsolutePath();
+        // File reportsFolder = SpecsIo.mkdir(eclipseProject.getProjectRepo(), "reports");
+        //
+        // // Clean reports
+        // SpecsIo.deleteFolderContents(reportsFolder);
+        //
+        // String reportsDir = reportsFolder.getAbsolutePath();
 
         Replacer projectBuild = new Replacer(BuildResource.BENCHMARKER_TEMPLATE);
 

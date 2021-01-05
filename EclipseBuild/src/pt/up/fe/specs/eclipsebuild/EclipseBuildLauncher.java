@@ -120,7 +120,8 @@ public class EclipseBuildLauncher {
 
         String junitTargets = getJUnitTargets(config, projectNames, projectData);
 
-        String reportsDir = XmlGenerators.getReportsDir();
+        // String reportsDir = XmlGenerators.getReportsDir();
+        String reportsDir = BuildUtils.getReportsDir();
 
         Replacer antBuild = new Replacer(EclipseBuildResource.MAIN_TEMPLATE);
 
