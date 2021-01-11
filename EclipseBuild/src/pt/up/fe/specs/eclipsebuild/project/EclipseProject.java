@@ -86,11 +86,14 @@ public class EclipseProject {
         // Build UserLibraries
         Map<File, UserLibraries> userLibraries = new HashMap<>();
         for (EclipseRepo option : options) {
-            if (option.getUserLibraries() == null) {
+            var userLibs = option.getUserLibraries();
+            if (userLibs == null) {
                 continue;
             }
 
-            UserLibraries repoUserLibraries = UserLibraries.newInstance(eclipseProjects, option.getUserLibraries());
+            SpecsLogs.info("Loading user libraries file: " + userLibs);
+
+            UserLibraries repoUserLibraries = UserLibraries.newInstance(eclipseProjects, userLibs);
             userLibraries.put(option.getRepositoryFolder(), repoUserLibraries);
 
         }

@@ -34,7 +34,7 @@ public class EclipseRepoParser {
 
     private static final String DEFAULT_IGNORE_PROJECTS_FILE = "projects.buildignore";
     private static final String DEFAULT_IVY_SETTINGS_FILE = "ivysettings.xml";
-    private static final String DEFAULT_USER_LIBRARIES = "repo.userlibraries";
+    // private static final String DEFAULT_USER_LIBRARIES = "repo.userlibraries";
 
     public static String getDefaultIgnoreProjectsFile() {
         return DEFAULT_IGNORE_PROJECTS_FILE;
@@ -44,9 +44,9 @@ public class EclipseRepoParser {
         return DEFAULT_IVY_SETTINGS_FILE;
     }
 
-    public static String getDefaultUserLibraries() {
-        return DEFAULT_USER_LIBRARIES;
-    }
+    // public static String getDefaultUserLibraries() {
+    // return DEFAULT_USER_LIBRARIES;
+    // }
 
     private final String repositoryPath;
     private File ivySettings;

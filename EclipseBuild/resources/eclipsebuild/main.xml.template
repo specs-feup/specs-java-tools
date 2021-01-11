@@ -13,14 +13,16 @@
 	
 	
 	<target name="junit" depends="<ALL_JUNIT_TARGETS>">
-	  <fail message="Test failure detected, check test results." if="test.failed" />
-	  
-  		<junitreport todir="<REPORT_DIR>">
+		
+		<junitreport todir="<REPORT_DIR>">
     		<fileset dir="<REPORT_DIR>">
       			<include name="TEST-*.xml"/>
    			 </fileset>
     		<report format="frames" todir="<REPORT_DIR>"/>
   		</junitreport>	  
+  		
+		<fail message="Test failure detected, check test results." if="test.failed" />  	
+			
 	</target>
 	
 	
