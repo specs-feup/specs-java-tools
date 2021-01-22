@@ -16,7 +16,7 @@
 		
 		<junitreport todir="<REPORT_DIR>">
     		<fileset dir="<REPORT_DIR>">
-      			<include name="TESTS-TestSuites.xml"/>
+      			<include name="TEST-*.xml"/>
    			 </fileset>
     		<report format="frames" todir="<REPORT_DIR>"/>
   		</junitreport>	  
