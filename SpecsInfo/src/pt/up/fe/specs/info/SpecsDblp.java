@@ -31,7 +31,7 @@ public class SpecsDblp {
         int lastIndexOfSlash = dblpUrl.lastIndexOf('/');
 
         if (lastIndexOfSlash == -1) {
-            SpecsLogs.msgWarn("Could not decode " + dblpUrl);
+            SpecsLogs.warn("Could not decode " + dblpUrl);
             return null;
         }
 
