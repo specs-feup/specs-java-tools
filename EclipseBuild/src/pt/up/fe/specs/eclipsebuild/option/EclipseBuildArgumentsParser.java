@@ -31,6 +31,7 @@ import com.google.common.base.Preconditions;
 import pt.up.fe.specs.eclipsebuild.EclipseBuildLog;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
+import pt.up.fe.specs.util.SpecsSystem;
 import pt.up.fe.specs.util.parsing.ListParser;
 import pt.up.fe.specs.util.parsing.arguments.ArgumentsParser;
 import pt.up.fe.specs.util.utilities.LineStream;
@@ -194,6 +195,9 @@ public class EclipseBuildArgumentsParser {
 
         // Add found repositories
         eclipseBuildConfig.add(EclipseBuildKeys.ECLIPSE_REPOS, eclipseRepos);
+
+        // Add build number
+        eclipseBuildConfig.add(EclipseBuildKeys.BUILD_NUMBER, SpecsSystem.createBuildNumber());
 
         return eclipseBuildConfig;
     }

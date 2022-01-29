@@ -71,4 +71,9 @@ public interface EclipseBuildKeys {
     DataKey<Boolean> JVM_JAVAC = KeyFactory.bool("eclipse_build_jvm_javac");
 
     DataKey<JarType> JAR_TYPE = KeyFactory.enumeration("jarType", JarType.class).setDefault(() -> JarType.REPACK);
+
+    /**
+     * A build number that is created at the beginning of the execution and that can be used during the program.
+     */
+    DataKey<String> BUILD_NUMBER = KeyFactory.string("buildNumber");
 }

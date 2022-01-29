@@ -364,6 +364,8 @@ public class XmlGenerators {
         jarTarget.replace("<JAR_LIST>", jarList);
         jarTarget.replace("<MAIN_FILESET>", mainFileset);
         jarTarget.replace("<ZIP_OR_COPY>", zipOrCopy);
+        // jarTarget.replace("<BUILD_NUMBER_ATTR>", SpecsSystem.getBuildNumberAttr());
+        // jarTarget.replace("<BUILD_NUMBER>", config.get(EclipseBuildKeys.BUILD_NUMBER));
 
         return jarTarget.toString();
     }
