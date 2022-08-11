@@ -15,6 +15,7 @@ package pt.up.fe.specs.eclipsebuild.option;
 
 import java.io.File;
 
+import pt.up.fe.specs.git.GitRepos;
 import pt.up.fe.specs.git.SpecsGit;
 import pt.up.fe.specs.util.SpecsLogs;
 
@@ -87,8 +88,12 @@ public class EclipseRepo {
         // Check if path represents a remote repository
         String pathLowerCase = repositoryPath.toLowerCase();
         if (pathLowerCase.startsWith("http://") || pathLowerCase.startsWith("https://")) {
-            // processedRepositoryFolder = parseRepositoryUrl(repositoryPath);
-            processedRepositoryFolder = SpecsGit.parseRepositoryUrl(repositoryPath);
+            var gitRepo = GitRepos.getRepo(repositoryPath);
+            processedRepositoryFolder = gitRepo.getWorkFolder();
+            // System.out.println("GitRepo: " + gitRepo);
+            //
+            // // processedRepositoryFolder = parseRepositoryUrl(repositoryPath);
+            // processedRepositoryFolder = SpecsGit.parseRepositoryUrl(repositoryPath);
 
         }
         // Interpret path as a local folder

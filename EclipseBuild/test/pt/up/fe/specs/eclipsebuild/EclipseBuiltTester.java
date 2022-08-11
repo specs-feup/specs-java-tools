@@ -17,6 +17,9 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import pt.up.fe.specs.git.GitRepos;
+import pt.up.fe.specs.util.SpecsSystem;
+
 public class EclipseBuiltTester {
 
     private static void testBuilder(String... args) {
@@ -118,5 +121,24 @@ public class EclipseBuiltTester {
     public void testHelp() {
         // Project with main
         EclipseBuildLauncher.execute(Arrays.asList("--help"));
+    }
+
+    @Test
+    public void testGitManager() {
+        SpecsSystem.programStandardInit();
+        // var repoUrl =
+        // "https://github.com/specs-feup/specs-java-libs.git?folder=SpecsUtils&xpto=dummy&branch=experimental-jsEngine&commit=2f2eb56f3511d1ea298c47bec7e2f0cfd70926a4";
+        // var repoUrl =
+        // "https://github.com/specs-feup/specs-java-libs.git?folder=SpecsUtils&xpto=dummy&commit=2f2eb56f3511d1ea298c47bec7e2f0cfd70926a4";
+        // var repoUrl =
+        // "https://github.com/specs-feup/specs-java-libs.git?folder=SpecsUtils&xpto=dummy&commit=2f2eb56f35";
+        // var repoUrl =
+        // "https://github.com/specs-feup/specs-java-libs.git?folder=SpecsUtils&xpto=dummy&commit=experimental-jsEngine";
+        var repoUrl = "https://github.com/specs-feup/specs-java-libs.git?folder=SpecsUtils&xpto=dummy&commit=master";
+        // var repoUrl =
+        // "https://github.com/specs-feup/specs-java-libs.git?folder=SpecsUtils&xpto=dummy&commit=master&folder=AntTasks";
+        // var repoUrl =
+        // "https://github.com/specs-feup/specs-java-libs.git?folder=SpecsUtils&xpto=dummy&commit=master&folder=AntTasks2";
+        GitRepos.getRepo(repoUrl);
     }
 }
