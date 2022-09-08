@@ -333,18 +333,20 @@ public class XmlGenerators {
 
         String projectName = config.get(EclipseBuildKeys.PROJECT_NAME);
 
-        String compileTarget = BuildUtils.getCompileTargetName(projectName);
+        // String compileTarget = BuildUtils.getCompileTargetName(projectName);
         String outputJarFile = projectName + ".jar";
 
         String mainClassAttribute = config.hasValue(EclipseBuildKeys.MAIN_CLASS)
                 ? getMainClassAttribute(config.get(EclipseBuildKeys.MAIN_CLASS))
                 : "";
 
-        String fileset = buildFileset(projectName, eclipseProjects, true);
+        // String fileset = buildFileset(projectName, eclipseProjects, true);
 
         var eclipseProject = eclipseProjects.get(projectName);
         var classpathFiles = eclipseProject.getClasspath();
-        var ivyFolders = getIvyFolders(classpathFiles, eclipseProjects);
+        // var ivyFolders = getIvyFolders(classpathFiles, eclipseProjects);
+        var ivyFolders = DeployUtils.getIvyFolders(eclipseProject.getProjectData(), projectName);
+
         var libFoldername = projectName + "_lib";
 
         List<File> jarFileList = DeployUtils.getJarFiles(classpathFiles.getJarFiles(), ivyFolders, false);
@@ -410,13 +412,16 @@ public class XmlGenerators {
         var classpathFiles = eclipseProject.getClasspath();
         var parser = eclipseProject.getProjectData();
 
-        Collection<String> dependentProjects = parser.getDependentProjects(projectName);
-        Collection<String> projectsWithIvy = BuildUtils.filterProjectsWithIvy(parser, dependentProjects);
-        Collection<String> ivyFolders = projectsWithIvy.stream()
-                .map(ivyProject -> BuildUtils.getIvyJarFoldername(parser.getClasspath(ivyProject).getProjectFolder()))
-                .collect(Collectors.toList());
+        // Collection<String> dependentProjects = parser.getDependentProjects(projectName);
+        // Collection<String> projectsWithIvy = BuildUtils.filterProjectsWithIvy(parser, dependentProjects);
+        // Collection<String> ivyFolders = projectsWithIvy.stream()
+        // .map(ivyProject -> BuildUtils.getIvyJarFoldername(parser.getClasspath(ivyProject).getProjectFolder()))
+        // .collect(Collectors.toList());
+
+        var ivyFolders = DeployUtils.getIvyFolders(parser, projectName);
 
         List<File> jarFileList = DeployUtils.getJarFiles(classpathFiles.getJarFiles(), ivyFolders, false);
+
         String libFoldername = projectName + "_lib";
 
         String jarZipfileset = DeployUtils.buildJarZipfileset(jarFileList, libFoldername);
