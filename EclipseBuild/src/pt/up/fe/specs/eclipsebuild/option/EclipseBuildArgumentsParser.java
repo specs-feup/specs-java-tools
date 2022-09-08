@@ -224,7 +224,7 @@ public class EclipseBuildArgumentsParser {
         message.append(
                 " --config <config>: specify a configuration file (local or remote). A configuration file is a plain text file with EclipseBuild commands\n");
         message.append(
-                " --jvm-javac: executes 'javac' in the current JVM. If flag is not active, each 'javac' execution is forked. This can make builds slower, but it is usually necessary when EclipseBuild is used to execute the build (instead of just generating the ANT file)\n");
+                " --jvm-javac: [DEPRECATED - This option is now always on] executes 'javac' in the current JVM. If flag is not active, each 'javac' execution is forked. This can make builds slower, but it is usually necessary when EclipseBuild is used to execute the build (instead of just generating the ANT file)\n");
         message.append(
                 " --test: Executes the unit tests (implies --build). All classes whose name ends in '...Test' are considered to be classes that contain JUnit test cases.\n");
         /*
