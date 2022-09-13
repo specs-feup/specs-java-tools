@@ -35,6 +35,7 @@ import pt.up.fe.specs.eclipsebuild.EclipseBuildResource;
 import pt.up.fe.specs.eclipsebuild.option.EclipseBuildKeys;
 import pt.up.fe.specs.eclipsebuild.option.EclipseRepo;
 import pt.up.fe.specs.util.SpecsIo;
+import pt.up.fe.specs.util.SpecsSystem;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
 import pt.up.fe.specs.util.utilities.Replacer;
 
@@ -329,6 +330,8 @@ public class XmlGenerators {
         jarTarget.replace("<OUTPUT_JAR_FILE>", outputJarFile);
         jarTarget.replace("<MAIN_CLASS>", mainClassAttribute);
         jarTarget.replace("<FILESET>", fileset);
+        jarTarget.replace("<BUILD_NUMBER_ATTR>", SpecsSystem.getBuildNumberAttr());
+        jarTarget.replace("<BUILD_NUMBER>", config.get(EclipseBuildKeys.BUILD_NUMBER));
 
         return jarTarget.toString();
     }
@@ -372,8 +375,8 @@ public class XmlGenerators {
         jarTarget.replace("<JAR_LIST>", jarList);
         jarTarget.replace("<MAIN_FILESET>", mainFileset);
         jarTarget.replace("<ZIP_OR_COPY>", zipOrCopy);
-        // jarTarget.replace("<BUILD_NUMBER_ATTR>", SpecsSystem.getBuildNumberAttr());
-        // jarTarget.replace("<BUILD_NUMBER>", config.get(EclipseBuildKeys.BUILD_NUMBER));
+        jarTarget.replace("<BUILD_NUMBER_ATTR>", SpecsSystem.getBuildNumberAttr());
+        jarTarget.replace("<BUILD_NUMBER>", config.get(EclipseBuildKeys.BUILD_NUMBER));
 
         return jarTarget.toString();
     }

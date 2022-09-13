@@ -5,6 +5,7 @@
 			<manifest>
 				<MAIN_CLASS>
 				<attribute name="Class-Path" value="." />
+				<attribute name="<BUILD_NUMBER_ATTR>" value="<BUILD_NUMBER>" />				
 			</manifest>
 			<FILESET>
 		</jar>

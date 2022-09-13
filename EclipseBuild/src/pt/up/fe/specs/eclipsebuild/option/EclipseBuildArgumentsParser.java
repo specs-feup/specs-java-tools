@@ -205,7 +205,15 @@ public class EclipseBuildArgumentsParser {
 
     public static void printHelpMessage() {
         StringBuilder message = new StringBuilder();
-        message.append("EclipseBuild - Generates and runs ANT scripts for Eclipse Java projects\n\n");
+        message.append("EclipseBuild");
+        var buildNumber = SpecsSystem.getBuildNumber();
+        if (buildNumber != null) {
+            message.append(" (build " + buildNumber + ")");
+        }
+        message.append("\n");
+
+        message.append("Generates and runs ANT scripts for Eclipse Java projects\n\n");
+
         message.append("Usage: <folder> [-i <ivySetting>] [-u <userLibraries>] <folder> [-i...\n\n");
         message.append(
                 "Default files that will be searched for in the root of the repository folders if no flag is specified:\n");

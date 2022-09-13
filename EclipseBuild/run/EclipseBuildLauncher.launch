@@ -12,7 +12,7 @@
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="pt.up.fe.specs.eclipsebuild.EclipseBuildLauncher"/>
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="EclipseBuild"/>
-    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="https://github.com/specs-feup/specs-java-libs.git?folder=SpecsUtils&amp;xpto=dummy&amp;branch=experimental-jsEngine&amp;commit=2f2eb56f3511d1ea298c47bec7e2f0cfd70926a4"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--config https://raw.githubusercontent.com/specs-feup/kadabra/master/JavaWeaver/eclipse.build"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="EclipseBuild"/>
     <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:EclipseBuild/run}"/>
 </launchConfiguration>
