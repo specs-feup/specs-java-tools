@@ -75,7 +75,7 @@ public class XmlGenerators {
     }
 
     public static String getCompileXml(Collection<EclipseProject> eclipseProjects, boolean ignoreTestFolders,
-            boolean jvmJavac) {
+            DataStore config) {
 
         StringBuilder compileXml = new StringBuilder();
 
@@ -87,7 +87,8 @@ public class XmlGenerators {
             String targetName = BuildUtils.getCompileTargetName(projectName);
             String projectDependencies = BuildUtils.getDependencies(classpathFiles);
 
-            String outputJar = BuildUtils.getOutputJar(projectName).getAbsolutePath();
+            String outputJar = BuildUtils.getOutputJar(getJarName(config)).getAbsolutePath();
+            // String outputJar = BuildUtils.getOutputJar(projectName).getAbsolutePath();
             String fileset = BuildUtils.buildFileset(projectName, eclipseProject.getProjectData());
             String binFoldername = BuildUtils.getBinFoldername(classpathFiles);
             String sourcePath = BuildUtils.getSourcePath(classpathFiles, ignoreTestFolders);
@@ -95,7 +96,10 @@ public class XmlGenerators {
             String ivyResolve = getIvyResolveXml(eclipseProject);
             String commands = BuildUtils.getCommandsTask(classpathFiles);
             // String ivyResolve = BuildUtils.getResolveTask(parser, projectName);
-            String forkJavacXml = jvmJavac ? "" : "fork=\"true\"";
+
+            // Option is deprecated
+            String forkJavacXml = "";
+            // String forkJavacXml = jvmJavac ? "" : "fork=\"true\"";
 
             Replacer projectBuild = new Replacer(BuildResource.COMPILE_TEMPLATE);
 
@@ -310,7 +314,8 @@ public class XmlGenerators {
         String projectName = config.get(EclipseBuildKeys.PROJECT_NAME);
 
         String compileTarget = BuildUtils.getCompileTargetName(projectName);
-        String outputJarFile = projectName + ".jar";
+        // String outputJarFile = projectName + ".jar";
+        String outputJarFile = getJarFilename(config);
 
         String mainClassAttribute = config.hasValue(EclipseBuildKeys.MAIN_CLASS)
                 ? getMainClassAttribute(config.get(EclipseBuildKeys.MAIN_CLASS))
@@ -334,7 +339,8 @@ public class XmlGenerators {
         String projectName = config.get(EclipseBuildKeys.PROJECT_NAME);
 
         // String compileTarget = BuildUtils.getCompileTargetName(projectName);
-        String outputJarFile = projectName + ".jar";
+        // String outputJarFile = projectName + ".jar";
+        String outputJarFile = getJarFilename(config);
 
         String mainClassAttribute = config.hasValue(EclipseBuildKeys.MAIN_CLASS)
                 ? getMainClassAttribute(config.get(EclipseBuildKeys.MAIN_CLASS))
@@ -374,7 +380,8 @@ public class XmlGenerators {
 
     public static String getZipXml(Map<String, EclipseProject> eclipseProjects, DataStore config) {
         String projectName = config.get(EclipseBuildKeys.PROJECT_NAME);
-        String outputJarFilename = projectName + ".jar";
+        // String outputJarFilename = projectName + ".jar";
+        String outputJarFilename = getJarFilename(config);
 
         // Output Zip
         String outputZip = SpecsIo.removeExtension(outputJarFilename) + ".zip";
@@ -526,5 +533,14 @@ public class XmlGenerators {
         }
 
         return fileset.toString();
+    }
+
+    public static String getJarName(DataStore config) {
+        // If a jar name was manually set, use it. Otherwise, use the project name
+        return config.getTry(EclipseBuildKeys.JAR_NAME).orElse(config.get(EclipseBuildKeys.PROJECT_NAME));
+    }
+
+    public static String getJarFilename(DataStore config) {
+        return getJarName(config) + ".jar";
     }
 }

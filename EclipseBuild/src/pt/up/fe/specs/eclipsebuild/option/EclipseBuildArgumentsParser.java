@@ -50,6 +50,7 @@ public class EclipseBuildArgumentsParser {
         ARGUMENTS_PARSER.put("--project", EclipseBuildArgumentsParser.addString(EclipseBuildKeys.PROJECT_NAME));
         ARGUMENTS_PARSER.put("--main", EclipseBuildArgumentsParser.addString(EclipseBuildKeys.MAIN_CLASS));
         ARGUMENTS_PARSER.put("--jar", EclipseBuildArgumentsParser.addEnum(EclipseBuildKeys.JAR_TYPE));
+        ARGUMENTS_PARSER.put("--jarname", EclipseBuildArgumentsParser.addString(EclipseBuildKeys.JAR_NAME));
         ARGUMENTS_PARSER.put("--config", EclipseBuildArgumentsParser::parseConfig);
         ARGUMENTS_PARSER.put("--test", EclipseBuildArgumentsParser.addBool(EclipseBuildKeys.TEST));
     }
@@ -221,6 +222,7 @@ public class EclipseBuildArgumentsParser {
         message.append(" --project <name>: the name of the Eclipse project to compile\n");
         message.append(" --main <full classname>: the class of the project with the main function\n");
         message.append(" --jar <type>: the type of JAR to generate. Available options: repack, subfolder, zip\n");
+        message.append(" --jarname <name>: the name of the generated JAR (or zip file)\n");
         message.append(
                 " --config <config>: specify a configuration file (local or remote). A configuration file is a plain text file with EclipseBuild commands\n");
         message.append(

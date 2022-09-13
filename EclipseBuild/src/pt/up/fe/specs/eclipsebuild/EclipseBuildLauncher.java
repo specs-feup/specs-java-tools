@@ -116,7 +116,7 @@ public class EclipseBuildLauncher {
             SpecsLogs.info("Flag '--jvm-javac' is deprecated, now is always on");
         }
         boolean jvmJavac = true;
-        String compileTargets = XmlGenerators.getCompileXml(eclipseProjectsValues, IGNORE_TEST_FOLDERS, jvmJavac);
+        String compileTargets = XmlGenerators.getCompileXml(eclipseProjectsValues, IGNORE_TEST_FOLDERS, config);
 
         // Bechmarker
         String benchmarker = XmlGenerators.getBenchmarkerXml(eclipseProjects);

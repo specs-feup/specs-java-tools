@@ -73,6 +73,11 @@ public interface EclipseBuildKeys {
     DataKey<JarType> JAR_TYPE = KeyFactory.enumeration("jarType", JarType.class).setDefault(() -> JarType.REPACK);
 
     /**
+     * The name of the JAR (or zip file)
+     */
+    DataKey<String> JAR_NAME = KeyFactory.string("jarName");
+
+    /**
      * A build number that is created at the beginning of the execution and that can be used during the program.
      */
     DataKey<String> BUILD_NUMBER = KeyFactory.string("buildNumber");
