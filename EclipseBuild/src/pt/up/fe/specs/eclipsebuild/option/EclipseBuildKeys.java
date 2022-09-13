@@ -70,7 +70,7 @@ public interface EclipseBuildKeys {
      */
     DataKey<Boolean> JVM_JAVAC = KeyFactory.bool("eclipse_build_jvm_javac");
 
-    DataKey<JarType> JAR_TYPE = KeyFactory.enumeration("jarType", JarType.class).setDefault(() -> JarType.REPACK);
+    DataKey<JarType> JAR_TYPE = KeyFactory.enumeration("jarType", JarType.class).setDefault(() -> JarType.SUBFOLDER);
 
     /**
      * The name of the JAR (or zip file)
