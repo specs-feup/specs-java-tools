@@ -31,7 +31,14 @@ public class EclipseDeployLauncher {
     public static void main(String[] args) {
         SpecsSystem.programStandardInit();
 
-        var name = "EclipseDeploy " + SpecsSystem.getBuildNumber();
+        // To debug dependency problem
+        // Taken from here:
+        // https://stackoverflow.com/questions/21864521/java-lang-nosuchfielderror-org-apache-http-message-basiclineformatter-instance
+        // ClassLoader classLoader = EclipseDeployLauncher.class.getClassLoader();
+        // URL resource = classLoader.getResource("org/apache/http/message/BasicLineFormatter.class");
+        // System.out.println("BasicLineFormatter: " + resource);
+
+        var name = "EclipseDeploy" + getTitleSuffix();
         var definition = StoreDefinition.newInstanceFromInterface(EclipseDeploy.class);
         var persistence = new XmlPersistence(definition);
         var kernel = new EclipseDeploy();
@@ -39,5 +46,11 @@ public class EclipseDeployLauncher {
         var app = App.newInstance(name, definition, persistence, kernel);
 
         JOptionsUtils.executeApp(app, Arrays.asList(args));
+    }
+
+    private static String getTitleSuffix() {
+        var buildNumber = SpecsSystem.getBuildNumber();
+
+        return buildNumber != null ? " " + buildNumber : " (development)";
     }
 }
