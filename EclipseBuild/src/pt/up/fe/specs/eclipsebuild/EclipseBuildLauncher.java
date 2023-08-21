@@ -20,18 +20,21 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.suikasoft.jOptions.Interfaces.DataStore;
 
 import pt.up.fe.specs.eclipse.Classpath.ClasspathParser;
 import pt.up.fe.specs.eclipse.Utilities.DeployUtils;
+import pt.up.fe.specs.eclipse.Utilities.PostProcessUtils;
 import pt.up.fe.specs.eclipse.builder.BuildUtils;
 import pt.up.fe.specs.eclipsebuild.option.EclipseBuildArgumentsParser;
 import pt.up.fe.specs.eclipsebuild.option.EclipseBuildKeys;
 import pt.up.fe.specs.eclipsebuild.option.EclipseRepo;
 import pt.up.fe.specs.eclipsebuild.project.EclipseProject;
 import pt.up.fe.specs.eclipsebuild.project.XmlGenerators;
+import pt.up.fe.specs.util.SpecsCheck;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -46,7 +49,13 @@ public class EclipseBuildLauncher {
         execute(Arrays.asList(args));
     }
 
-    public static void execute(List<String> args) {
+    /**
+     * Processes arguments, creates and executes the build script.
+     * 
+     * @param args
+     * @return the File that was created as a result of the build, if one was created
+     */
+    public static Optional<File> execute(List<String> args) {
         SpecsSystem.programStandardInit();
 
         // Parse input
@@ -56,10 +65,10 @@ public class EclipseBuildLauncher {
         // If --help, show message and return
         if (config.get(EclipseBuildKeys.SHOW_HELP)) {
             EclipseBuildArgumentsParser.printHelpMessage();
-            return;
+            return Optional.empty();
         }
 
-        // If --clean, delete contents of temporary folder
+        // If --clean, delete contents of temporary folder (and later, ivy folders)
         if (config.get(EclipseBuildKeys.CLEAN)) {
             File reposFolder = EclipseRepo.getRepositoriesFolder();
             SpecsLogs.msgInfo("Cleaning repository folder '" + reposFolder.getAbsolutePath() + "'");
@@ -80,23 +89,31 @@ public class EclipseBuildLauncher {
 
         if (eclipseRepos.isEmpty()) {
             EclipseBuildLog.info("No repositories found");
-            return;
+            return Optional.empty();
         }
 
         Map<String, EclipseProject> eclipseProjects = EclipseProject.build(eclipseRepos);
         if (eclipseProjects.isEmpty()) {
             EclipseBuildLog.info("No Eclipse projects found");
-            return;
+            return Optional.empty();
         }
 
         // Check if it is only to list
         if (config.get(EclipseBuildKeys.SHOW_LIST)) {
             listOption(config, eclipseProjects);
-            return;
+            return Optional.empty();
         }
 
         Collection<EclipseProject> eclipseProjectsValues = eclipseProjects.values();
         ClasspathParser projectData = eclipseProjectsValues.stream().findFirst().get().getProjectData();
+
+        // Always delete the contents of ivy folders, to avoid accumulating JARs from different versions
+        // if (config.get(EclipseBuildKeys.CLEAN) && config.hasValue(EclipseBuildKeys.PROJECT_NAME)) {
+        if (config.hasValue(EclipseBuildKeys.PROJECT_NAME)) {
+            var projectName = config.get(EclipseBuildKeys.PROJECT_NAME);
+            projectData.cleanIvyFolders(projectName);
+        }
+
         List<String> projectNames = eclipseProjectsValues.stream()
                 .map(project -> project.getName())
                 .collect(Collectors.toList());
@@ -115,7 +132,7 @@ public class EclipseBuildLauncher {
         if (config.hasValue(EclipseBuildKeys.JVM_JAVAC)) {
             SpecsLogs.info("Flag '--jvm-javac' is deprecated, now is always on");
         }
-        boolean jvmJavac = true;
+        // boolean jvmJavac = true;
         String compileTargets = XmlGenerators.getCompileXml(eclipseProjectsValues, IGNORE_TEST_FOLDERS, config);
 
         // Bechmarker
@@ -155,6 +172,8 @@ public class EclipseBuildLauncher {
 
             String mainTarget = config.get(EclipseBuildKeys.TEST) ? "junit" : compileTarget;
 
+            // System.out.println("JAR TYPE: " + config.get(EclipseBuildKeys.JAR_TYPE));
+
             // Add new target for build
 
             // If project is defined, set here the target
@@ -173,10 +192,30 @@ public class EclipseBuildLauncher {
                 jarTargetFile = createJarFile(config, eclipseProjects);
                 String targetName = XmlGenerators.getCreateJarTarget();
                 DeployUtils.runAnt(jarTargetFile, targetName);
+
+                var builtFile = getDestinationFile(jarTargetFile, config, eclipseProjects);
+                PostProcessUtils.processBuiltFile(builtFile);
+                return Optional.of(builtFile);
             }
 
         }
 
+        return Optional.empty();
+    }
+
+    private static File getDestinationFile(File jarTargetFile, DataStore config,
+            Map<String, EclipseProject> eclipseProjects) {
+
+        var destinationFilename = XmlGenerators.getGeneratedFile(eclipseProjects, config);
+
+        SpecsCheck.checkNotNull(destinationFilename, () -> "Could not find destination filename");
+
+        var destinationFile = new File(jarTargetFile.getParentFile(), destinationFilename);
+
+        SpecsCheck.checkArgument(destinationFile.isFile(),
+                () -> "Could not find file " + destinationFile.getAbsolutePath());
+
+        return destinationFile;
     }
 
     private static String getJUnitTargets(DataStore config, List<String> projectNames,

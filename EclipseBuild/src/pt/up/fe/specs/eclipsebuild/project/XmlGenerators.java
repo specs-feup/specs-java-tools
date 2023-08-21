@@ -35,6 +35,7 @@ import pt.up.fe.specs.eclipsebuild.EclipseBuildResource;
 import pt.up.fe.specs.eclipsebuild.option.EclipseBuildKeys;
 import pt.up.fe.specs.eclipsebuild.option.EclipseRepo;
 import pt.up.fe.specs.util.SpecsIo;
+import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
 import pt.up.fe.specs.util.utilities.Replacer;
@@ -305,6 +306,30 @@ public class XmlGenerators {
             return getJarSubfolderXml(eclipseProjects, config, false);
         case ZIP:
             return getJarSubfolderXml(eclipseProjects, config, true);
+        default:
+            throw new NotImplementedException(jarType);
+        }
+
+    }
+
+    public static String getGeneratedFile(Map<String, EclipseProject> eclipseProjects, DataStore config) {
+
+        // Only determine file if there is a project specified
+        if (!config.hasValue(EclipseBuildKeys.PROJECT_NAME)) {
+            return null;
+        }
+
+        // Get JAR type
+        var jarType = config.get(EclipseBuildKeys.JAR_TYPE);
+
+        switch (jarType) {
+        case REPACK:
+            return getJarFilename(config);
+        case SUBFOLDER:
+            SpecsLogs.info("Using output type 'subfolder', which does not generate a single file, returning null");
+            return null;
+        case ZIP:
+            return SpecsIo.removeExtension(getJarFilename(config)) + ".zip";
         default:
             throw new NotImplementedException(jarType);
         }
