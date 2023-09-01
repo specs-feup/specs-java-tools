@@ -194,7 +194,11 @@ public class EclipseBuildLauncher {
                 DeployUtils.runAnt(jarTargetFile, targetName);
 
                 var builtFile = getDestinationFile(jarTargetFile, config, eclipseProjects);
-                PostProcessUtils.processBuiltFile(builtFile);
+
+                if (config.get(EclipseBuildKeys.PROCESS_JAR)) {
+                    PostProcessUtils.processBuiltFile(builtFile);
+                }
+
                 return Optional.of(builtFile);
             }
 

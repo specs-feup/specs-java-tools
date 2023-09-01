@@ -81,4 +81,9 @@ public interface EclipseBuildKeys {
      * A build number that is created at the beginning of the execution and that can be used during the program.
      */
     DataKey<String> BUILD_NUMBER = KeyFactory.string("buildNumber");
+
+    /**
+     * If true, post-processes the generated JAR. Currently ensures the manifest file does not contain \r.
+     */
+    DataKey<Boolean> PROCESS_JAR = KeyFactory.bool("processJar").setDefault(() -> true);
 }

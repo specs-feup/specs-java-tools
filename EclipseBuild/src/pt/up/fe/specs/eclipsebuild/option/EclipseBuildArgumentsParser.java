@@ -53,6 +53,7 @@ public class EclipseBuildArgumentsParser {
         ARGUMENTS_PARSER.put("--jarname", EclipseBuildArgumentsParser.addString(EclipseBuildKeys.JAR_NAME));
         ARGUMENTS_PARSER.put("--config", EclipseBuildArgumentsParser::parseConfig);
         ARGUMENTS_PARSER.put("--test", EclipseBuildArgumentsParser.addBool(EclipseBuildKeys.TEST));
+        ARGUMENTS_PARSER.put("--process-jar", EclipseBuildArgumentsParser.addBool(EclipseBuildKeys.PROCESS_JAR));
     }
 
     /*
@@ -237,6 +238,8 @@ public class EclipseBuildArgumentsParser {
                 " --jvm-javac: [DEPRECATED - This option is now always on] executes 'javac' in the current JVM. If flag is not active, each 'javac' execution is forked. This can make builds slower, but it is usually necessary when EclipseBuild is used to execute the build (instead of just generating the ANT file)\n");
         message.append(
                 " --test: Executes the unit tests (implies --build). All classes whose name ends in '...Test' are considered to be classes that contain JUnit test cases.\n");
+        message.append(
+                " --process-jar: Post-processes the generated JAR file, enabled by default. Currently removes '\\r' occurrences from the JAR manifest.\n");
         /*
         
         ARGUMENTS_PARSER.put("--main", EclipseBuildArgumentsParser.addString(EclipseBuildKeys.MAIN_CLASS));

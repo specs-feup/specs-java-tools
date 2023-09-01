@@ -75,7 +75,7 @@ public class EclipseDeploy implements AppKernel {
         ListOfSetups listOfSetups = GuiHelperConverter.toListOfSetups(options.get(TASKS), TaskUtils.getTasksList());
 
         // Only need to set last argument, setups for the tasks, optionally setting the default name of the output JAR+
-        var data = new EclipseDeploymentData(null, null, null, null, null, null, null, null,
+        var data = new EclipseDeploymentData(null, null, null, null, null, null, null, null, false,
                 listOfSetups);
         // System.out.println("DATA: " + listOfSetups);
         // Set the result file
